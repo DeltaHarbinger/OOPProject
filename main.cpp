@@ -25,25 +25,28 @@ int displayArrowMenu(std::string message, std::vector<std::string> menuItems)
 
 int main()
 {
-    struct tm * test;
-    time_t dummy;
     
-    time(&dummy);
-    test = localtime(&dummy);
-    
-    test -> tm_mday = 27;
-    test -> tm_mon = 2;
-    test -> tm_year = 0;
-    test -> tm_hour = 15;
-    test -> tm_min = 30;
-    test -> tm_sec = 45;
-
-    
-    
-    mktime(test);
-    
-    std::cout << asctime(test);
-    std::cin.get();
 
     return 0;
 }
+
+// Time Stuff
+// struct tm * test;
+// time_t dummy;
+
+// time(&dummy);
+// test = localtime(&dummy);
+
+// test -> tm_mday = 27;
+// test -> tm_mon = 2;
+// test -> tm_year = 0;
+// test -> tm_hour = 15;
+// test -> tm_min = 30;
+// test -> tm_sec = 45;
+
+
+
+// mktime(test);
+
+// std::cout << asctime(test);
+// std::cin.get();
