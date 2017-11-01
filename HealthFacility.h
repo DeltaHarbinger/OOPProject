@@ -12,18 +12,42 @@ public:
 	{
 	}
 	
+	HealthFacility(std::string address, int openingDays[], std::string typeOfFacility){
+		this -> address = address;
+		std::copy(openingDays, openingDays + 6, this -> openingDays);
+		this -> typeOfFacility = typeOfFacility;
+	}
 	
 	~HealthFacility()
 	{
 	}
 
+	//Getters
+	std::string getAdress(){
+		return address;
+	}
+
+	int * getOpeningDays(){
+		return openingDays;
+	}
+
+	std::vector<Veterinarian> getVeterinarians(){
+		return veterinarians;
+	}
+
+	std::vector<Intervention> getStaffRecords(){
+		return staffRecords;
+	}
 
 private:
 	std::string address;
-	std::string openingDays[7];
-	std::vector<Intervention *> staffRecords;
+	//Days start on Sunday with is represented as 0
+	int openingDays[7];
 	std::string typeOfFacility;
-	std::vector<Veterinarian *> veterinarians;
+	std::vector<Veterinarian> veterinarians;
+	std::vector<Intervention> staffRecords;
 };
+
+
 
 #endif

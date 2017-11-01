@@ -21,10 +21,13 @@ int displayArrowMenu(std::string message, std::vector<std::string> menuItems)
     return position + 1;
 }
 
-
+int days[] = {1, 2, 3, 4, 5, 6};
+int days2[] = {0, 6};
 
 int main()
 {
+    HealthFacility * facilities[] = { new HealthFacility("10 Winchester Road", days, "Full"), new HealthFacility("Caymanas Track Limited", days2, "Mobile") };
+
     
 
     return 0;
