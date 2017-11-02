@@ -23,7 +23,7 @@ public:
 	}
 
 	//Getters
-	std::string getAdress(){
+	std::string getAddress(){
 		return address;
 	}
 
