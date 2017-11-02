@@ -9,6 +9,11 @@ public:
 	
 	Client()
 	{
+		this -> fName = "";
+		this -> lName = "";
+		this -> telephoneNo = "";
+		this -> address = "";
+		this -> email = "";
 	}
 	
 	Client(std::string fName, std::string lName, std::string telephoneNo, std::string address, std::string email)
