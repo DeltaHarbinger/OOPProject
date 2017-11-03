@@ -20,6 +20,10 @@ std::vector<Animal *> animals;
 
 //Yes no option menu
 std::vector<std::string> yesNoOptions = {"Yes", "No"};
+//Menu options used in main menu
+std::vector<std::string> menuOptions = {"Animals", "Clients", "Appointments", "Removal Requests", "Places for Inspection", "Veterinarians", "Exit"};
+
+
 
 int displayArrowMenu(std::string message, std::vector<std::string> menuItems)
 {
@@ -38,14 +42,14 @@ int displayArrowMenu(std::string message, std::vector<std::string> menuItems)
 
 
 std::string getString(std::string message){
-    std::cout << message << std::endl << ">";
+    std::cout << message << std::endl << "> ";
     std::cin.sync();
     getline(std::cin, message);
     return message;
 }
 
 int getNumber(std::string message){
-    std::cout << message << std::endl << "#";
+    std::cout << message << std::endl << "# ";
     int number;
     std::cin >> number;
     return number;
@@ -64,9 +68,11 @@ std::vector<std::string> getAllClientNames(){
 }
 
 Client * getClient(std::string message){
-    return clients[displayArrowMenu(message , getAllClientNames())];
+    int cOption = displayArrowMenu(message , getAllClientNames()) - 1;    
+    return clients[cOption];
 }
 
+/*
 std::vector<std::string> getAllBasicAnimalInfo(){
     std::vector<std::string> animalInfo;
     for(int x = 0; x < animals.size(); x++){
@@ -81,23 +87,7 @@ void displayAnimal(){
     system("pause");
 }
 
-void addAnimal(){
-    std::string name = getString("Enter the animal's name");
-    std::string type = getString("Enter the type of animal");
-    std::string gender = getString("Enter the animal's gender");//Change Genders to list
-    std::string breed = getString("Enter the animal's breed");
-    int approxAge = getNumber("Enter the age");
-    bool adoptionCandidate = getBoolean("Is this animal a candidate for adoption?");
-    Animal * newAnimal = new Animal(name, type, gender, breed, approxAge, adoptionCandidate);
-    animals.push_back(newAnimal);
-    bool owned = false;
-    if(clients.size() > 0){
-        owned = getBoolean("Does the animal have an owner?");
-    }
-    if(owned){
-        animals[animals.size()] -> setOwner(getClient("Select the owner")); 
-    }
-}
+
 
 void executeAnimalFunction(int functionNumber){
     switch(functionNumber){
@@ -114,39 +104,84 @@ void animalMenu(){
     std::vector<std::string> animalOptions = {"Display All Animals", "Add Animal", "Euthanize Animal"};
     executeAnimalFunction(displayArrowMenu("Choose an option", animalOptions));
 }
+*/
 
+void addAnimal(){
+    std::string name = getString("Enter the animal's name");
+    std::string type = getString("Enter the type of animal");
+    std::string gender = getString("Enter the animal's gender");//Change Genders to list
+    std::string breed = getString("Enter the animal's breed");
+    int approxAge = getNumber("Enter the age");
+    bool adoptionCandidate = getBoolean("Is this animal a candidate for adoption?");
+    Animal * newAnimal = new Animal(name, type, gender, breed, approxAge, adoptionCandidate);
+    animals.push_back(newAnimal);
+    bool owned = false;
+    if(clients.size() > 0){
+        owned = getBoolean("Does the animal have an owner?");
+    }
+    if(owned){
+        Client * owner = getClient("Select the owner");
+        std::cout << owner -> getFName() << " " << owner -> getLName();
+        animals[animals.size() - 1] -> setOwner(owner); 
+    }
+}
 
-void execuseClientFunction(int functionNumber){
+void addClient(){
+    std::string fName = getString("Enter the client's first name");
+    std::string lName = getString("Enter the client's last name");
+    std::string telephoneNo = getString("Enter the client's telephone number");
+    std::string address = getString("Enter the client's address");
+    std::string email = getString("Enter the client's email");
+    Client * newClient = new Client(fName, lName, telephoneNo, address, email);
+    clients.push_back(newClient);
+}
+
+void addAppointment(){
     
 }
 
-void clientMenu(){
-    std::vector<std::string> clientOptions = {"Display all Clients", "Add a Client", "Remove a Client"};
+void addRemovalRequest(){
 
 }
 
 
-void executeMenuOption(int option){
-    switch(option){
+void createObject(int type){
+    switch(type){
         case 1:
-            animalMenu();
+            addAnimal();
             break;
         case 2:
-            clientMenu();
+            addClient();
+            break;
+        case 3:
+            addAppointment();
+            break;
+    }
+}
 
+
+
+void executeMenuOption(int option){
+    int selectedOption = option - 1;
+    std::vector<std::string> functionOptions = {("Add " + menuOptions[selectedOption]), ("Update " + menuOptions[selectedOption]), ("View " + menuOptions[selectedOption]), ("View all " + menuOptions[selectedOption]), ("Delete " + menuOptions[selectedOption])};
+    
+    switch(displayArrowMenu("Choose an option", functionOptions)){
+        case 1:
+            createObject(option);
+            break;
         
     }
 }
 
+
 int main()
 {
-    std::vector<std::string> menuOptions = {"Animals", "Clients", "Event Records", "Places for Inspection", "Veterinarians", "Exit"};
+    
 
 
     int menuOption = 0;
-    while((menuOption = menuOption = displayArrowMenu("Main Menu\n", menuOptions)) != 6)
+    while((menuOption = menuOption = displayArrowMenu("Main Menu\n", menuOptions)) != 7)
     {
-        
         executeMenuOption(menuOption);
     }
 
