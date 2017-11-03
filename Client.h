@@ -24,7 +24,14 @@ public:
 	{
 	}
 
+	//Getters
+	std::string getFName(){
+		return fName;
+	}
 
+	std::string getLName(){
+		return lName;
+	}
 
 private:
 	std::string fName;
