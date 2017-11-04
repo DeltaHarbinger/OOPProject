@@ -86,7 +86,7 @@ public:
 		std::cout << "Name:\t" << name << std::endl << "Type:\t" << type << std::endl << "Gender:\t" << gender << std::endl;
 		std::cout << "Breed:\t" << breed << std::endl << "Approx Age:\t" << approxAge << std::endl << "Adoption Candidate:\t" << (adoptionCandidate ? "Yes" : "No") << std::endl;
 		if(owner){
-			std::cout << "Owner Name:\t" << (owner -> getFName()) << " " << (owner -> getLName());
+			std::cout << "Owner Name:\t" << (owner -> getFName()) << " " << (owner -> getLName()) << std::endl;
 		}
 	}
 

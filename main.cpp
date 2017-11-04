@@ -9,7 +9,8 @@
 //Health Facility Data is defined here. The data is hard coded as there is no indication of a need to change the data later on
 int days[] = {1, 2, 3, 4, 5, 6};
 int days2[] = {0, 6};
-HealthFacility * facilities[2] = { new HealthFacility("10 Winchester Road", days, "Full"), new HealthFacility("Caymanas Track Limited", days2, "Mobile") };
+std::vector<std::string> healthFacilityAddresses = {"10 Winchester Road", "Caymanas Track Limited"};
+HealthFacility * facilities[2] = { new HealthFacility(healthFacilityAddresses[0], days, "Full"), new HealthFacility(healthFacilityAddresses[1], days2, "Mobile") };
 
 
 std::vector<std::string> facilityAddresses = { facilities[0] -> getAddress(), facilities[1] -> getAddress() };
@@ -17,6 +18,7 @@ std::vector<std::string> facilityAddresses = { facilities[0] -> getAddress(), fa
 //Vectors for storing objects
 std::vector<Client *> clients;
 std::vector<Animal *> animals;
+
 
 //Yes no option menu
 std::vector<std::string> yesNoOptions = {"Yes", "No"};
@@ -59,20 +61,64 @@ bool getBoolean(std::string message){
     return displayArrowMenu(message, yesNoOptions);
 }
 
-std::vector<std::string> getAllClientNames(){
-    std::vector<std::string> clientNames;
-    for(int x = 0; x < clients.size(); x++){
-        clientNames.push_back(clients[x] -> getFName() + " " + clients[x] -> getLName());
+int getMonth(std::string message){
+    std::vector<std::string> months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    return (displayArrowMenu(message, months) - 1);
+}
+
+bool validDay(int year, int month, int day){
+    if(day < 1 || year < 1)
+        return false;
+    switch(month){
+        case 1:
+            if((year % 400 == 0) || (year % 100 != 0 && year % 4 == 0))
+                return (day < 30) ? true : false;
+            else
+                return (day < 29) ? true : false;
+            break;
+        case 0:
+        case 2:
+        case 4:
+        case 6:
+        case 7:
+        case 9:
+        case 11:
+            return (day < 32) ? true : false;
+            break;
+        default:
+            return (day < 31) ? true : false;
     }
-    return clientNames;
 }
 
-Client * getClient(std::string message){
-    int cOption = displayArrowMenu(message , getAllClientNames()) - 1;    
-    return clients[cOption];
+struct tm * getDate(){
+    time_t source = time(NULL);
+    struct tm * date = localtime(&source);
+    date -> tm_year = getNumber("Enter the intended year for the appointment") - 1900;
+    date -> tm_mon = getMonth("Select the intended month for the appointment");
+    date -> tm_mday = getNumber("Enter the intended day for the appointment");
+    while(!validDay(date -> tm_year, date -> tm_mon, date -> tm_mday)){
+        std::cout << "Please enter a valid date";
+        date -> tm_year = getNumber("Enter the intended year for the appointment") - 1900;
+        date -> tm_mon = getMonth("Select the intended month for the appointment");
+        date -> tm_mday = getNumber("Enter the intended day for the appointment");
+    }
+    return date;
 }
 
-/*
+bool animalsExist(){
+    return animals.size() > 0;
+}
+
+bool clientsExist(){
+    return clients.size() > 0;
+}
+
+bool interventionsExist(){
+    return facilities[0] -> getStaffRecords().size() > 0 || facilities[1] -> getStaffRecords().size() > 0;
+}
+
+
+
 std::vector<std::string> getAllBasicAnimalInfo(){
     std::vector<std::string> animalInfo;
     for(int x = 0; x < animals.size(); x++){
@@ -82,10 +128,53 @@ std::vector<std::string> getAllBasicAnimalInfo(){
     return animalInfo;
 }
 
-void displayAnimal(){
-    animals[displayArrowMenu("Select the animal to view", getAllBasicAnimalInfo()) - 1] -> display();
-    system("pause");
+std::vector<std::string> getAllClientNames(){
+    std::vector<std::string> clientNames;
+    for(int x = 0; x < clients.size(); x++){
+        clientNames.push_back(clients[x] -> getFName() + " " + clients[x] -> getLName());
+    }
+    return clientNames;
 }
+
+HealthFacility * getHealthFacility(std::string message){
+    return facilities[displayArrowMenu(message, healthFacilityAddresses) - 1];
+}
+
+Client * getClient(std::string message){
+    return clients[displayArrowMenu(message, getAllClientNames()) - 1];
+}
+
+Animal * getAnimal(std::string message){
+    return animals[displayArrowMenu(message, getAllBasicAnimalInfo()) - 1];
+}
+
+std::vector<Intervention *> getStaffRecords(HealthFacility * facility){
+    //return getHealthFacility(message) -> getStaffRecords();
+    return facility -> getStaffRecords();
+}
+
+std::vector<std::string> getAllBasicInterventionInfo(std::vector<Intervention *> interventions){
+    std::vector<std::string> recordInfo;
+    for(int x = 0; x < interventions.size(); x++){
+        std::string info = (interventions[x] -> getInterventionNumber() + "\t" + interventions[x] -> getClient() -> getFName() + "\t" + interventions[x] -> getClient() -> getLName() + "\t" + interventions[x] -> getReason());
+        recordInfo.push_back(info);
+    }
+    return recordInfo;
+}
+
+Intervention * getRecord(std::string message){
+    //return (, getStaffRecords(message, getHealthFacility())) ;
+    HealthFacility * f = getHealthFacility("Select the health facility");
+    std::vector<Intervention *> records = getStaffRecords(f);
+    return records[displayArrowMenu(message, getAllBasicInterventionInfo(records)) - 1];
+    //[displayArrowMenu("Select the intervention", getAllBasicInterventionInfo()) - 1]
+    //get health facility -> get staff records ->
+}
+
+/*
+
+
+
 
 
 
@@ -136,14 +225,52 @@ void addClient(){
     clients.push_back(newClient);
 }
 
+void printInvalidDate(){
+    system("cls");
+    std::cout << "The date entered is not valid. Please enter a valid date" << std::endl;
+    system("pause");
+}
+
 void addAppointment(){
     
+    std::string reason = getString("State the reason for the appointment");
+    bool abilityToPay = getBoolean("Does the client have the ability to pay?");
+    bool payInFull = false;
+    if(abilityToPay)
+        payInFull = getBoolean("Will the client pay in full?");
+    bool makeContribution = getBoolean("Does the client intend to make a contribution?");
+    Animal * animal = getAnimal("Select the animal");
+    // int intendedYear = getNumber("Enter the intended year for the appointment");
+    // int intendedMonth = getMonth("Select the intended month for the appointment");
+    // int intendedDay = getNumber("Enter the intended day for the appointment");
+    // while(!validDay(intendedYear, intendedMonth, intendedDay)){
+    //     printInvalidDate();
+    //     intendedYear = getNumber("Enter the intended year for the appointment");
+    //     intendedMonth = getMonth("Select the intended month for the appointment");
+    //     intendedDay = getNumber("Enter the intended day for the appointment");
+    // }
+    struct tm * intendedDate = getDate();
+    mktime(intendedDate);
+    std::string intendedDateString = asctime(intendedDate);
+    time_t currentTime = time(NULL);
+    //struct tm * currentTimeStruct = localtime()
+    std::string currentTimeString = asctime(localtime(&currentTime));
+    
+    Intervention * newIntervention = new Intervention(reason, abilityToPay, payInFull, makeContribution, animal, intendedDateString, currentTimeString);
+    getHealthFacility("Select the facility") -> addStaffRecord(newIntervention);
 }
 
 void addRemovalRequest(){
 
 }
 
+void addPlaceForInspection(){
+
+}
+
+void addVeterinarian(){
+
+}
 
 void createObject(int type){
     switch(type){
@@ -154,8 +281,77 @@ void createObject(int type){
             addClient();
             break;
         case 3:
-            addAppointment();
+            if(animalsExist())
+                addAppointment();
+            else{
+                std::cout << "There are currently no animals registered" << std::endl;
+                system("pause");
+            }
             break;
+        case 4:
+            addRemovalRequest();
+            break;
+        case 5:
+            addPlaceForInspection();
+            break;
+        case 6:
+            addVeterinarian();
+            break;
+    }
+}
+
+void displayAnimal(){
+    /*animals[displayArrowMenu("Select the animal to view", getAllBasicAnimalInfo()) - 1] -> display();
+    system("pause");
+    */
+    system("cls");
+    getAnimal("Select the animal to view") -> display();
+    system("pause");
+}
+
+void displayClient(){
+    //clients[displayArrowMenu("Select Client to view", getAllClientNames()) - 1] -> display();
+    system("cls");
+    getClient("Select the client to view") -> display();
+    system("pause");
+}
+
+void displayIntervention(){
+    //interventions[displayArrowMenu("Select record to view:\t", )]
+    system("cls");
+    getRecord("Select the record to be displayed") -> display();
+    system("pause");
+}
+
+void displayObjectInfo(int type){
+    switch(type){
+        case 1:
+            if(animalsExist())
+                displayAnimal();
+            else{
+                system("cls");
+                std::cout << "There are currently no animals registered." << std::endl;
+                system("pause");
+            }
+            break;
+        case 2:
+            if(clientsExist())
+                displayClient();
+            else{
+                system("cls");
+                std::cout << "There are currently no clients registered." << std::endl;
+                system("pause");
+            }
+            break;
+        case 3:
+            if(interventionsExist())
+                displayIntervention();
+            else{
+                system("cls");
+                std::cout << "There are currently no appointments recorded." << std::endl;
+                system("pause");
+            }
+            
     }
 }
 
@@ -169,6 +365,14 @@ void executeMenuOption(int option){
         case 1:
             createObject(option);
             break;
+        case 2:
+            //Update Object Here
+            break;
+        case 3:
+            displayObjectInfo(option);
+            break;
+        case 4:
+            displayAllObjectInfo(option);
         
     }
 }

@@ -38,6 +38,10 @@ public:
 		return lName;
 	}
 
+	void display(){
+		std::cout << "Name:\t" << fName << " " << lName << std::endl << "Telephone #:\t" << telephoneNo << std::endl << "Address:\t" << address << std::endl << "Email:\t" << email << std::endl;
+	}
+
 private:
 	std::string fName;
 	std::string lName;
