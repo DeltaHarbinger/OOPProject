@@ -13,8 +13,6 @@ std::vector<std::string> healthFacilityAddresses = {"10 Winchester Road", "Cayma
 HealthFacility * facilities[2] = { new HealthFacility(healthFacilityAddresses[0], days, "Full"), new HealthFacility(healthFacilityAddresses[1], days2, "Mobile") };
 
 
-std::vector<std::string> facilityAddresses = { facilities[0] -> getAddress(), facilities[1] -> getAddress() };
-
 //Vectors for storing objects
 std::vector<Client *> clients;
 std::vector<Animal *> animals;
@@ -26,7 +24,7 @@ std::vector<std::string> yesNoOptions = {"Yes", "No"};
 std::vector<std::string> menuOptions = {"Animals", "Clients", "Appointments", "Removal Requests", "Places for Inspection", "Veterinarians", "Exit"};
 
 
-
+//Function used to generate an arrow menu
 int displayArrowMenu(std::string message, std::vector<std::string> menuItems)
 {
     unsigned int position = 0, character = 0;
@@ -43,6 +41,8 @@ int displayArrowMenu(std::string message, std::vector<std::string> menuItems)
 
 
 
+
+//Function used to get different types of variables in a generic way
 std::string getString(std::string message){
     std::cout << message << std::endl << "> ";
     std::cin.sync();
@@ -66,6 +66,7 @@ int getMonth(std::string message){
     return (displayArrowMenu(message, months) - 1);
 }
 
+//validates a given date
 bool validDay(int year, int month, int day){
     if(day < 1 || year < 1)
         return false;
@@ -90,21 +91,25 @@ bool validDay(int year, int month, int day){
     }
 }
 
-struct tm * getDate(){
+struct tm * getDate(std::string dateReason){
     time_t source = time(NULL);
     struct tm * date = localtime(&source);
-    date -> tm_year = getNumber("Enter the intended year for the appointment") - 1900;
-    date -> tm_mon = getMonth("Select the intended month for the appointment");
-    date -> tm_mday = getNumber("Enter the intended day for the appointment");
+    date -> tm_year = getNumber("Enter the intended year for the " + dateReason) - 1900;
+    date -> tm_mon = getMonth("Select the intended month for the " + dateReason);
+    date -> tm_mday = getNumber("Enter the intended day for the " + dateReason);
     while(!validDay(date -> tm_year, date -> tm_mon, date -> tm_mday)){
         std::cout << "Please enter a valid date";
-        date -> tm_year = getNumber("Enter the intended year for the appointment") - 1900;
-        date -> tm_mon = getMonth("Select the intended month for the appointment");
-        date -> tm_mday = getNumber("Enter the intended day for the appointment");
+        date -> tm_year = getNumber("Enter the intended year for the " + dateReason) - 1900;
+        date -> tm_mon = getMonth("Select the intended month for the " + dateReason);
+        date -> tm_mday = getNumber("Enter the intended day for the " + dateReason);
     }
     return date;
 }
 
+
+
+
+//Checks if objects exist in a vector and returns true/false appropriately
 bool animalsExist(){
     return animals.size() > 0;
 }
@@ -119,6 +124,8 @@ bool interventionsExist(){
 
 
 
+
+//Returns a vector of strings composed of the names, types and preeds of animals
 std::vector<std::string> getAllBasicAnimalInfo(){
     std::vector<std::string> animalInfo;
     for(int x = 0; x < animals.size(); x++){
@@ -127,7 +134,7 @@ std::vector<std::string> getAllBasicAnimalInfo(){
     }
     return animalInfo;
 }
-
+//Returns a vector of strings composed of the names, of clients
 std::vector<std::string> getAllClientNames(){
     std::vector<std::string> clientNames;
     for(int x = 0; x < clients.size(); x++){
@@ -135,23 +142,23 @@ std::vector<std::string> getAllClientNames(){
     }
     return clientNames;
 }
-
+//Returns a health facility chosen from a menu
 HealthFacility * getHealthFacility(std::string message){
     return facilities[displayArrowMenu(message, healthFacilityAddresses) - 1];
 }
-
+//Returns a client selected from a menu
 Client * getClient(std::string message){
     return clients[displayArrowMenu(message, getAllClientNames()) - 1];
 }
-
+//Returns an animal selected from a menu
 Animal * getAnimal(std::string message){
     return animals[displayArrowMenu(message, getAllBasicAnimalInfo()) - 1];
 }
-
+//Returns the staff records of a given health facility
 std::vector<Intervention *> getStaffRecords(HealthFacility * facility){
     return facility -> getStaffRecords();
 }
-
+//Returns a vector of strings filled with basic info on given interventions including the intervention number, client name and reason
 std::vector<std::string> getAllBasicInterventionInfo(std::vector<Intervention *> interventions){
     std::vector<std::string> recordInfo;
     for(int x = 0; x < interventions.size(); x++){
@@ -160,13 +167,40 @@ std::vector<std::string> getAllBasicInterventionInfo(std::vector<Intervention *>
     }
     return recordInfo;
 }
-
+//Returns an intervention from a health facility after giving a 
 Intervention * getRecord(std::string message){
     HealthFacility * f = getHealthFacility("Select the health facility");
     std::vector<Intervention *> records = getStaffRecords(f);
     return records[displayArrowMenu(message, getAllBasicInterventionInfo(records)) - 1];
 }
 
+Intervention * getAppointment(std::string message){
+    HealthFacility * f = getHealthFacility("Select the health facility");
+    std::vector<Intervention *> records = getStaffRecords(f);
+    for(int x = 0; x < records.size(); x++)
+        if((records[x] -> getReason()) == "Removal Request")
+            records.erase(records.begin() + x);
+    //return records[displayArrowMenu(message, getAllBasicInterventionInfo(records)) - 1];
+    if(records.size() > 0)
+        return records[displayArrowMenu(message, getAllBasicInterventionInfo(records)) - 1];
+    else
+        return 0;
+}
+
+Intervention * getRemovalRequest(std::string message){
+    HealthFacility * f = getHealthFacility("Select the health facility");
+    std::vector<Intervention *> records = getStaffRecords(f);
+    for(int x = 0; x < records.size(); x++)
+        if((records[x] -> getReason()) != "Removal Request")
+            records.erase(records.begin() + x);
+    if(records.size() > 0)
+        return records[displayArrowMenu(message, getAllBasicInterventionInfo(records)) - 1];
+    else
+        return 0;
+}
+
+
+//Adds an animal to the global animal vector after taking all of the information needed to create it
 void addAnimal(){
     std::string name = getString("Enter the animal's name");
     std::string type = getString("Enter the type of animal");
@@ -189,6 +223,17 @@ void addAnimal(){
     }
 }
 
+void addAnimal(Client * client){
+    std::string type = getString("Enter the type of animal");
+    std::string breed = getString("Enter the animal's breed");
+    animals.push_back(new Animal(type, breed));
+    system("cls");
+    std::cout << "The data for the animal that " << (client -> getFName()) << " has requested to be removed has been stored" << std::endl;
+    system("pause");
+}
+
+
+//Adds client to global client vector after taking all information needed to create it
 void addClient(){
     std::string fName = getString("Enter the client's first name");
     std::string lName = getString("Enter the client's last name");
@@ -199,12 +244,12 @@ void addClient(){
     clients.push_back(newClient);
 }
 
-void printInvalidDate(){
-    system("cls");
-    std::cout << "The date entered is not valid. Please enter a valid date" << std::endl;
-    system("pause");
-}
-
+// void printInvalidDate(){
+//     system("cls");
+//     std::cout << "The date entered is not valid. Please enter a valid date" << std::endl;
+//     system("pause");
+// }
+//Adds appointment to facility chosen after taking all necessary information
 void addAppointment(){
     
     std::string reason = getString("State the reason for the appointment");
@@ -215,7 +260,7 @@ void addAppointment(){
     bool makeContribution = getBoolean("Does the client intend to make a contribution?");
     Animal * animal = getAnimal("Select the animal");
 
-    struct tm * intendedDate = getDate();
+    struct tm * intendedDate = getDate("appointment");
     mktime(intendedDate);
     std::string intendedDateString = asctime(intendedDate);
     time_t currentTime = time(NULL);
@@ -224,9 +269,24 @@ void addAppointment(){
     Intervention * newIntervention = new Intervention(reason, abilityToPay, payInFull, makeContribution, animal, intendedDateString, currentTimeString);
     getHealthFacility("Select the facility") -> addStaffRecord(newIntervention);
 }
-
+//Adds removal request to 
 void addRemovalRequest(){
-
+    Client * client = getClient("Choose the client responsible for making the request");
+    addAnimal(client);
+    Animal * animal = animals[animals.size() - 1];
+    bool abilityToPay = getBoolean("Does the client have the ability to pay?");
+    bool payInFull = false;
+    if(abilityToPay)
+        payInFull = getBoolean("Will the client pay in full?");
+    bool makeContribution = getBoolean("Does the client intend to make a contribution?");
+    struct tm * intendedDate = getDate("removal");
+    mktime(intendedDate);
+    std::string intendedDateString = asctime(intendedDate);
+    time_t currentTime = time(NULL);
+    std::string currentTimeString = asctime(localtime(&currentTime));
+    std::string address = getString("Enter the address that the animal is currently located at");
+    RemovalRequest * newRemovalRequest = new RemovalRequest(abilityToPay, payInFull, makeContribution, animal, client, intendedDateString, currentTimeString, address);
+    getHealthFacility("Select the facility") -> addStaffRecord(newRemovalRequest);
 }
 
 void addPlaceForInspection(){
@@ -236,7 +296,7 @@ void addPlaceForInspection(){
 void addVeterinarian(){
 
 }
-
+//Calls the paaropriate function used to create an object depending on the parameter
 void createObject(int type){
     switch(type){
         case 1:
@@ -283,7 +343,27 @@ void displayClient(){
 
 void displayIntervention(){
     system("cls");
-    getRecord("Select the record to be displayed") -> display();
+    Intervention * temp = getAppointment("Select the record to be displayed");
+    if(temp){
+        system("cls");
+        temp -> display();
+    }
+    else{
+        std::cout << "There are no appointments to be displayed" << std::endl;
+    }
+    system("pause");
+}
+
+void displayRemovalRequest(){
+    system("cls");
+    Intervention * temp = getRemovalRequest("Select the record to be displayed");
+    if(temp){
+        system("cls");
+        temp -> display();
+    }
+    else{
+        std::cout << "There are no appointments to be displayed" << std::endl;
+    }
     system("pause");
 }
 
@@ -315,7 +395,17 @@ void displayObjectInfo(int type){
                 std::cout << "There are currently no appointments recorded." << std::endl;
                 system("pause");
             }
-            
+            break;
+        case 4:
+            if(interventionsExist()){
+                displayRemovalRequest();
+            } else{
+                system("cls");
+                std::cout << "There are currently no removal requests recorded." << std::endl;
+                system("pause");
+            }
+            break;
+
     }
 }
 
@@ -363,6 +453,24 @@ void displayAllAppointments(){
     }
 }
 
+void displayAllRemovalRequests(){
+    for(int x = 0; x < 2; x++){
+        std::vector<Intervention *> staffRecords = facilities[x] -> getStaffRecords();
+        if(staffRecords.size() > 0)
+            for(int y = 0; y < staffRecords.size(); y++){
+                if(staffRecords[y] -> getReason() == "Removal Requst"){
+                    system("cls");
+                    staffRecords[y] -> display();
+                    system("pause");
+                }
+            }
+        else{
+            std::cout << "There are currently no records for the facility at " << facilities[x] -> getAddress() << std::endl;
+            system("pause");
+        }
+    }
+}
+
 void displayAllObjectInfo(int option){
     switch(option){
         case 1:
@@ -373,6 +481,9 @@ void displayAllObjectInfo(int option){
             break;
         case 3:
             displayAllAppointments();
+            break;
+        case 4:
+            displayAllRemovalRequests();
             break;
     }
 }
@@ -427,12 +538,15 @@ void deleteAppointment(){
     std::vector<Intervention *> records = facilities[selectedFacility] -> getStaffRecords();
     if(records.size() > 0){
         std::vector<std::string> recordInfo;
+        std::vector<int> recordNumber;
         for(int x = 0; x < records.size(); x++){
             if(records[x] -> getReason() != "Removal Request")
                 recordInfo.push_back((records[x] -> getInterventionNumber() + "\t" + records[x] -> getReason() + "\t" + records[x] -> getAnimal() -> getName()));
+                recordNumber.push_back(x);
         }
         if(recordInfo.size() > 0){
             int recordToBeDeleted = displayArrowMenu("Select the record to be deleted", recordInfo) - 1;
+            recordToBeDeleted = recordNumber[recordToBeDeleted];
             (facilities[selectedFacility] -> getStaffRecords())[recordToBeDeleted] -> display();
             system("pause");
             if(displayArrowMenu("Delete the selected appointment?", yesNoOptions) == 1){
@@ -452,6 +566,39 @@ void deleteAppointment(){
     }
 }
 
+void deleteRemovalRequest(){
+    int selectedFacility = displayArrowMenu("Select the facility tha the request was booked at", healthFacilityAddresses) - 1;
+    std::vector<Intervention *> records = facilities[selectedFacility] -> getStaffRecords();
+    if(records.size() > 0){
+        std::vector<std::string> recordInfo;
+        std::vector<int> recordNumber;
+        for(int x = 0; x < records.size(); x++){
+            if(records[x] -> getReason() == "Removal Request")
+                recordInfo.push_back((records[x] -> getInterventionNumber() + "\t" + records[x] -> getReason() + "\t" + records[x] -> getClient() -> getFName()));
+                recordNumber.push_back(x);
+        }
+        if(recordInfo.size() > 0){
+            int recordToBeDeleted = displayArrowMenu("Select the record to be deleted", recordInfo) - 1;
+            recordToBeDeleted = recordNumber[recordToBeDeleted];
+            (facilities[selectedFacility] -> getStaffRecords())[recordToBeDeleted] -> display();
+            system("pause");
+            if(displayArrowMenu("Delete the selected rwquest?", yesNoOptions) == 1){
+                delete((facilities[selectedFacility] -> getStaffRecords())[recordToBeDeleted]);
+                std::cout <<"The request has been deleted" << std::endl;
+                system("pause");
+            }
+        } else {
+            system("cls");
+            std::cout << "There are currently no requests booked at this branch" << std::endl;
+            system("pause");
+        }
+    } else {
+        system("cls");
+        std::cout << "There are currently no requests booked" << std::endl;
+        system("pause");
+    }
+}
+
 void deleteObject(int option){
     switch(option){
         case 1:
@@ -463,7 +610,9 @@ void deleteObject(int option){
         case 3:
             deleteAppointment();
             break;
-
+        case 4:
+            deleteRemovalRequest();
+            break;
     }
 }
 

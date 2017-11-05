@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ANIMAL_H
+#define ANIMAL_H
+
 #include "Client.h"
 #include <string>
 class Animal
@@ -6,6 +8,12 @@ class Animal
 public:
 	Animal()
 	{
+		this -> name = "N/A";
+		this -> type = "N/A";
+		this -> gender = "N/A";
+		this -> breed = "N/A";
+		this -> approxAge = 0;
+		this -> adoptionCandidate = false;
 	}
 	
 	Animal(std::string name, std::string type, std::string gender, std::string breed, int approxAge, bool adoptionCandidate){
@@ -17,6 +25,12 @@ public:
 		this -> adoptionCandidate = adoptionCandidate;
 	}
 	
+	Animal(std::string type, std::string breed){
+		Animal();
+		this -> type = type;
+		this -> breed = breed;
+	}
+
 	~Animal()
 	{
 	}
@@ -103,3 +117,4 @@ private:
 
 };
 
+#endif

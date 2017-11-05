@@ -29,6 +29,7 @@ public:
 	{
 	}
 	
+	//Getters
 	int getInterventionNumber(){
 		return interventionNumber;
 	}
@@ -63,6 +64,44 @@ public:
 
 	std::string getcreationDateAndTime(){
 		return creationDateAndTime;
+	}
+
+
+	//Setters
+	void setInterventionNumber(int interventionNumber){
+		this -> interventionNumber = interventionNumber;
+	}
+
+	void setReason(std::string reason){
+		this -> reason = reason;
+	}
+
+	void setAbilityToPay(bool abilityToPay){
+		this -> abilityToPay = abilityToPay;
+	}
+
+	void setPayInFull(bool payInFull){
+		this -> payInFull = payInFull;
+	}
+
+	void setMakeContribution(bool makeContribution){
+		this -> makeContribution = makeContribution;
+	}
+
+	void setAnimal(Animal * animal){
+		this -> animal = animal;
+	}
+
+	void setClient(Client * client){
+		this -> client = client;
+	}
+
+	void setIntendedDate(std::string intendedDate){
+		this -> intendedDate = intendedDate;
+	}
+
+	void setCreationDateAndTime(std::string creationDateAndTime){
+		this -> creationDateAndTime = creationDateAndTime;
 	}
 
 	void display(){
