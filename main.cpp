@@ -149,7 +149,6 @@ Animal * getAnimal(std::string message){
 }
 
 std::vector<Intervention *> getStaffRecords(HealthFacility * facility){
-    //return getHealthFacility(message) -> getStaffRecords();
     return facility -> getStaffRecords();
 }
 
@@ -163,37 +162,10 @@ std::vector<std::string> getAllBasicInterventionInfo(std::vector<Intervention *>
 }
 
 Intervention * getRecord(std::string message){
-    //return (, getStaffRecords(message, getHealthFacility())) ;
     HealthFacility * f = getHealthFacility("Select the health facility");
     std::vector<Intervention *> records = getStaffRecords(f);
     return records[displayArrowMenu(message, getAllBasicInterventionInfo(records)) - 1];
-    //[displayArrowMenu("Select the intervention", getAllBasicInterventionInfo()) - 1]
-    //get health facility -> get staff records ->
 }
-
-/*
-
-
-
-
-
-
-void executeAnimalFunction(int functionNumber){
-    switch(functionNumber){
-        case 1:
-            displayAnimal();
-            break;
-        case 2:
-            addAnimal();
-            break;
-    }
-}
-
-void animalMenu(){
-    std::vector<std::string> animalOptions = {"Display All Animals", "Add Animal", "Euthanize Animal"};
-    executeAnimalFunction(displayArrowMenu("Choose an option", animalOptions));
-}
-*/
 
 void addAnimal(){
     std::string name = getString("Enter the animal's name");
@@ -212,6 +184,8 @@ void addAnimal(){
         Client * owner = getClient("Select the owner");
         std::cout << owner -> getFName() << " " << owner -> getLName();
         animals[animals.size() - 1] -> setOwner(owner); 
+    }else{
+        animals[animals.size() - 1] -> setOwner(0);
     }
 }
 
@@ -240,20 +214,11 @@ void addAppointment(){
         payInFull = getBoolean("Will the client pay in full?");
     bool makeContribution = getBoolean("Does the client intend to make a contribution?");
     Animal * animal = getAnimal("Select the animal");
-    // int intendedYear = getNumber("Enter the intended year for the appointment");
-    // int intendedMonth = getMonth("Select the intended month for the appointment");
-    // int intendedDay = getNumber("Enter the intended day for the appointment");
-    // while(!validDay(intendedYear, intendedMonth, intendedDay)){
-    //     printInvalidDate();
-    //     intendedYear = getNumber("Enter the intended year for the appointment");
-    //     intendedMonth = getMonth("Select the intended month for the appointment");
-    //     intendedDay = getNumber("Enter the intended day for the appointment");
-    // }
+
     struct tm * intendedDate = getDate();
     mktime(intendedDate);
     std::string intendedDateString = asctime(intendedDate);
     time_t currentTime = time(NULL);
-    //struct tm * currentTimeStruct = localtime()
     std::string currentTimeString = asctime(localtime(&currentTime));
     
     Intervention * newIntervention = new Intervention(reason, abilityToPay, payInFull, makeContribution, animal, intendedDateString, currentTimeString);
@@ -300,24 +265,23 @@ void createObject(int type){
     }
 }
 
+void updateObject(int option){
+
+}
+
 void displayAnimal(){
-    /*animals[displayArrowMenu("Select the animal to view", getAllBasicAnimalInfo()) - 1] -> display();
-    system("pause");
-    */
     system("cls");
     getAnimal("Select the animal to view") -> display();
     system("pause");
 }
 
 void displayClient(){
-    //clients[displayArrowMenu("Select Client to view", getAllClientNames()) - 1] -> display();
     system("cls");
     getClient("Select the client to view") -> display();
     system("pause");
 }
 
 void displayIntervention(){
-    //interventions[displayArrowMenu("Select record to view:\t", )]
     system("cls");
     getRecord("Select the record to be displayed") -> display();
     system("pause");
@@ -355,25 +319,199 @@ void displayObjectInfo(int type){
     }
 }
 
+void displayAllAnimals(){
+    if(animalsExist())
+        for(int x = 0; x < animals.size(); x++){
+            system("cls");
+            animals[x] -> display();
+            system("pause");
+        }
+    else{
+        std::cout << "There are currently no animals registered" << std::endl;
+        system("pause");
+    }
+}
 
+void displayAllClients(){
+    if(clientsExist())
+        for(int x = 0; x < clients.size(); x++){
+            system("cls");
+            clients[x] -> display();
+            system("pause");
+        }
+    else{
+        std::cout << "There are currently no clients registered" << std::endl;
+        system("pause");
+    }
+}
+
+void displayAllAppointments(){
+    for(int x = 0; x < 2; x++){
+        std::vector<Intervention *> staffRecords = facilities[x] -> getStaffRecords();
+        if(staffRecords.size() > 0)
+            for(int y = 0; y < staffRecords.size(); y++){
+                if(staffRecords[y] -> getReason() != "Removal Requst"){
+                    system("cls");
+                    staffRecords[y] -> display();
+                    system("pause");
+                }
+            }
+        else{
+            std::cout << "There are currently no records for the facility at " << facilities[x] -> getAddress() << std::endl;
+            system("pause");
+        }
+    }
+}
+
+void displayAllObjectInfo(int option){
+    switch(option){
+        case 1:
+            displayAllAnimals();
+            break;
+        case 2:
+            displayAllClients();
+            break;
+        case 3:
+            displayAllAppointments();
+            break;
+    }
+}
+
+void deleteAnimal(){
+    if(animalsExist()){    
+        int animalToBeDeleted = displayArrowMenu("Select the animal to be deleted", getAllBasicAnimalInfo()) - 1;
+        animals[animalToBeDeleted] -> display();
+        system("pause");
+        if(displayArrowMenu("Delete the animal from the system?", yesNoOptions) == 1){
+            system("cls");
+            delete(animals[animalToBeDeleted]);
+            std::cout << "The animal has been deleted from the system" << std::endl;
+            animals.erase(animals.begin() + animalToBeDeleted);
+            system("pause");
+        } else {
+            system("cls");
+            std::cout << "The animal was not deleted" << std::endl;
+        }
+    } else {
+        system("cls");
+        std::cout << "There are currently no animals registered" << std::endl;
+        system("pause");
+    }
+}
+
+void deleteClient(){
+    if(clientsExist()){
+        int clientToBeDeleted = displayArrowMenu("Select the clien to be deleted", getAllClientNames()) - 1;
+        clients[clientToBeDeleted] -> display();
+        system("pause");
+        if(displayArrowMenu("Delete the client? from the system?", yesNoOptions) == 1){
+            system("cls");
+            delete(clients[clientToBeDeleted]);
+            std::cout << "The client has been deleted from the system" << std::endl;
+            clients.erase(clients.begin() + clientToBeDeleted);
+            system("pause");
+        } else {
+            system("cls");
+            std::cout << "The client was not deleted" << std::endl;
+            system("pause");
+        }
+    } else {
+        system("cls");
+        std::cout << "There are currently no clients registered" << std::endl;
+        system("pause");
+    }
+}
+
+void deleteAppointment(){
+    int selectedFacility = displayArrowMenu("Select the facility tha the appointment was booked at", healthFacilityAddresses) - 1;
+    std::vector<Intervention *> records = facilities[selectedFacility] -> getStaffRecords();
+    if(records.size() > 0){
+        std::vector<std::string> recordInfo;
+        for(int x = 0; x < records.size(); x++){
+            if(records[x] -> getReason() != "Removal Request")
+                recordInfo.push_back((records[x] -> getInterventionNumber() + "\t" + records[x] -> getReason() + "\t" + records[x] -> getAnimal() -> getName()));
+        }
+        if(recordInfo.size() > 0){
+            int recordToBeDeleted = displayArrowMenu("Select the record to be deleted", recordInfo) - 1;
+            (facilities[selectedFacility] -> getStaffRecords())[recordToBeDeleted] -> display();
+            system("pause");
+            if(displayArrowMenu("Delete the selected appointment?", yesNoOptions) == 1){
+                delete((facilities[selectedFacility] -> getStaffRecords())[recordToBeDeleted]);
+                std::cout <<"The record has been deleted" << std::endl;
+                system("pause");
+            }
+        } else {
+            system("cls");
+            std::cout << "There are currently no Appointments booked at this branch" << std::endl;
+            system("pause");
+        }
+    } else {
+        system("cls");
+        std::cout << "There are currently no Appointments booked" << std::endl;
+        system("pause");
+    }
+}
+
+void deleteObject(int option){
+    switch(option){
+        case 1:
+            deleteAnimal();
+            break;
+        case 2:
+            deleteClient();
+            break;
+        case 3:
+            deleteAppointment();
+            break;
+
+    }
+}
+
+void extraPlaceForInspectionOptions(){
+    
+}
+
+void extraVeterinarionOptions(){
+
+}
+
+void displayPageTwo(int option){
+    switch(option){
+        case 5:
+            extraPlaceForInspectionOptions();
+            break;
+        case 6:
+            extraVeterinarionOptions();
+            break;
+    }
+}
 
 void executeMenuOption(int option){
     int selectedOption = option - 1;
     std::vector<std::string> functionOptions = {("Add " + menuOptions[selectedOption]), ("Update " + menuOptions[selectedOption]), ("View " + menuOptions[selectedOption]), ("View all " + menuOptions[selectedOption]), ("Delete " + menuOptions[selectedOption])};
-    
+    if(option == 5 || option == 6){
+        functionOptions.push_back("Page 2");
+    }
+    functionOptions.push_back("Back");
     switch(displayArrowMenu("Choose an option", functionOptions)){
         case 1:
             createObject(option);
             break;
         case 2:
-            //Update Object Here
+            updateObject(option);
             break;
         case 3:
             displayObjectInfo(option);
             break;
         case 4:
             displayAllObjectInfo(option);
-        
+            break;
+        case 5:
+            deleteObject(option);
+            break;
+        case 6:
+            displayPageTwo(option);
+            break;
     }
 }
 

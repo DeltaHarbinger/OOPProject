@@ -80,7 +80,9 @@ public:
 		this -> owner = owner;
 	}
 
-
+	bool euthanize(){
+		this -> ~Animal();
+	}
 
 	void display(){
 		std::cout << "Name:\t" << name << std::endl << "Type:\t" << type << std::endl << "Gender:\t" << gender << std::endl;

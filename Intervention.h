@@ -66,7 +66,7 @@ public:
 	}
 
 	void display(){
-		std::cout << "Intervention Number:\t" << interventionNumber << std::endl << "Reason:\t" << reason << std::endl << "Able to pay:\t" << (abilityToPay ? "Yes" : "No") ;
+		std::cout << "Intervention Number:\t" << interventionNumber << std::endl << "Reason:\t" << reason << std::endl << "Able to pay:\t" << (abilityToPay ? "Yes" : "No")  << std::endl;
 		std::cout << "Paid in full:\t" << (payInFull ? "Yes" : "No") << std::endl << "Contribution made:\t" << (makeContribution ? "Yes" : "No") << std::endl;
 		client -> display();
 		animal -> display();
