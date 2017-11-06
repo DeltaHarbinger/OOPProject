@@ -12,6 +12,8 @@ public:
 	}
 	
 	RemovalRequest(bool abilityToPay, bool payInFull, bool makeContribution, Animal * animal, Client * client, std::string intendedDate, std::string creationDateAndTime, std::string address){
+		incrementNumberOfInterventions();
+		this -> setInterventionNumber(getNumberOfInterventions());
 		this -> setReason("Removal Request");
 		this -> setAbilityToPay(abilityToPay);
 		this -> setPayInFull(payInFull);

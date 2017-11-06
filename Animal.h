@@ -14,6 +14,7 @@ public:
 		this -> breed = "N/A";
 		this -> approxAge = 0;
 		this -> adoptionCandidate = false;
+		this -> owner = 0;
 	}
 	
 	Animal(std::string name, std::string type, std::string gender, std::string breed, int approxAge, bool adoptionCandidate){
@@ -25,8 +26,7 @@ public:
 		this -> adoptionCandidate = adoptionCandidate;
 	}
 	
-	Animal(std::string type, std::string breed){
-		Animal();
+	Animal(std::string type, std::string breed) : Animal(){
 		this -> type = type;
 		this -> breed = breed;
 	}

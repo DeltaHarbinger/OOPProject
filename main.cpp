@@ -178,7 +178,7 @@ Intervention * getAppointment(std::string message){
     HealthFacility * f = getHealthFacility("Select the health facility");
     std::vector<Intervention *> records = getStaffRecords(f);
     for(int x = 0; x < records.size(); x++)
-        if((records[x] -> getReason()) == "Removal Request")
+        if(!(records[x] -> getReason()).compare("Removal Request"))
             records.erase(records.begin() + x);
     //return records[displayArrowMenu(message, getAllBasicInterventionInfo(records)) - 1];
     if(records.size() > 0)
@@ -437,16 +437,18 @@ void displayAllClients(){
 
 void displayAllAppointments(){
     for(int x = 0; x < 2; x++){
+        bool displayed = false;
         std::vector<Intervention *> staffRecords = facilities[x] -> getStaffRecords();
         if(staffRecords.size() > 0)
             for(int y = 0; y < staffRecords.size(); y++){
-                if(staffRecords[y] -> getReason() != "Removal Requst"){
+                if((staffRecords[y] -> getReason()).compare("Removal Request")){
                     system("cls");
                     staffRecords[y] -> display();
+                    displayed = true;
                     system("pause");
                 }
             }
-        else{
+        if(!displayed){
             std::cout << "There are currently no records for the facility at " << facilities[x] -> getAddress() << std::endl;
             system("pause");
         }
@@ -455,16 +457,19 @@ void displayAllAppointments(){
 
 void displayAllRemovalRequests(){
     for(int x = 0; x < 2; x++){
+        bool displayed = false;
         std::vector<Intervention *> staffRecords = facilities[x] -> getStaffRecords();
-        if(staffRecords.size() > 0)
+        if(staffRecords.size() > 0){
             for(int y = 0; y < staffRecords.size(); y++){
-                if(staffRecords[y] -> getReason() == "Removal Requst"){
+                if(!(staffRecords[y] -> getReason()).compare("Removal Request")){
                     system("cls");
                     staffRecords[y] -> display();
                     system("pause");
+                    displayed = true;
                 }
             }
-        else{
+        }
+        if(!displayed){
             std::cout << "There are currently no records for the facility at " << facilities[x] -> getAddress() << std::endl;
             system("pause");
         }
@@ -573,7 +578,7 @@ void deleteRemovalRequest(){
         std::vector<std::string> recordInfo;
         std::vector<int> recordNumber;
         for(int x = 0; x < records.size(); x++){
-            if(records[x] -> getReason() == "Removal Request")
+            if(!(records[x] -> getReason()).compare("Removal Request"))
                 recordInfo.push_back((records[x] -> getInterventionNumber() + "\t" + records[x] -> getReason() + "\t" + records[x] -> getClient() -> getFName()));
                 recordNumber.push_back(x);
         }

@@ -13,7 +13,7 @@ public:
 	}
 	
 	Intervention(std::string reason, bool abilityToPay, bool payInFull, bool makeContribution, Animal * animal, std::string intendedDate, std::string creationDateAndTime){
-		numberOFInterventions++;
+		incrementNumberOfInterventions();
 		this -> interventionNumber = numberOFInterventions;
 		this -> reason = reason;
 		this -> abilityToPay = abilityToPay;
@@ -111,6 +111,14 @@ public:
 		animal -> display();
 		std::cout << "Date of appointment:\t" << intendedDate << std::endl;
 		std::cout << "Appointment creation date:\t" << creationDateAndTime << std::endl;
+	}
+
+	void incrementNumberOfInterventions(){
+		numberOFInterventions++;
+	}
+
+	int getNumberOfInterventions(){
+		return numberOFInterventions;
 	}
 
 private:
