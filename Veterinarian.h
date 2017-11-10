@@ -8,6 +8,9 @@ public:
 	{
 	}
 	
+	Veterinarian(std::string name){
+		this -> name = name;
+	}
 	
 	~Veterinarian()
 	{
@@ -22,6 +25,13 @@ public:
 		//Temporary
 		return true;
 	}
+
+	std::string getName(){
+		return name;
+	}
+private:
+	std::string name;
+
 };
 
 #endif

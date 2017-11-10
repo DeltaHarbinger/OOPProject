@@ -16,6 +16,7 @@ HealthFacility * facilities[2] = { new HealthFacility(healthFacilityAddresses[0]
 //Vectors for storing objects
 std::vector<Client *> clients;
 std::vector<Animal *> animals;
+std::vector<PlaceForInspection *> placesForInspection;
 
 
 //Yes no option menu
@@ -122,7 +123,9 @@ bool interventionsExist(){
     return facilities[0] -> getStaffRecords().size() > 0 || facilities[1] -> getStaffRecords().size() > 0;
 }
 
-
+bool placesForInspectionExist(){
+    return placesForInspection.size() > 0;
+}
 
 
 //Returns a vector of strings composed of the names, types and preeds of animals
@@ -142,6 +145,16 @@ std::vector<std::string> getAllClientNames(){
     }
     return clientNames;
 }
+
+//Get the names of all places of inspection
+std::vector<std::string> getAllBasicPlaceOfInspectionInfo(){
+    std::vector<std::string> placesInfo;
+    for(int x = 0; x < placesForInspection.size(); x++){
+        placesInfo.push_back(placesForInspection[x] -> getName() + " " + placesForInspection[x] -> getTypeOfPlace());
+    }
+    return placesInfo;
+}
+
 //Returns a health facility chosen from a menu
 HealthFacility * getHealthFacility(std::string message){
     return facilities[displayArrowMenu(message, healthFacilityAddresses) - 1];
@@ -199,6 +212,14 @@ Intervention * getRemovalRequest(std::string message){
         return 0;
 }
 
+PlaceForInspection * getPlaceForInspection(std::string message){
+    std::vector<std::string> places;
+    for(int x = 0; x < placesForInspection.size(); x++){
+        places.push_back(((placesForInspection[x] -> getName()) + "\t" + (placesForInspection[x] -> getTypeOfPlace())));
+    }
+    return placesForInspection[displayArrowMenu(message, places) - 1];
+}
+
 
 //Adds an animal to the global animal vector after taking all of the information needed to create it
 void addAnimal(){
@@ -223,6 +244,9 @@ void addAnimal(){
     }
 }
 
+
+
+////////////////////////////////////    Add Object  ////////////////////////////////
 void addAnimal(Client * client){
     std::string type = getString("Enter the type of animal");
     std::string breed = getString("Enter the animal's breed");
@@ -232,8 +256,6 @@ void addAnimal(Client * client){
     system("pause");
 }
 
-
-//Adds client to global client vector after taking all information needed to create it
 void addClient(){
     std::string fName = getString("Enter the client's first name");
     std::string lName = getString("Enter the client's last name");
@@ -244,12 +266,6 @@ void addClient(){
     clients.push_back(newClient);
 }
 
-// void printInvalidDate(){
-//     system("cls");
-//     std::cout << "The date entered is not valid. Please enter a valid date" << std::endl;
-//     system("pause");
-// }
-//Adds appointment to facility chosen after taking all necessary information
 void addAppointment(){
     
     std::string reason = getString("State the reason for the appointment");
@@ -290,12 +306,16 @@ void addRemovalRequest(){
 }
 
 void addPlaceForInspection(){
-
+    std::string name = getString("Enter the name of the Facility");
+    std::string typeOfPlace = getString("Enter the type of facility");
+    placesForInspection.push_back(new PlaceForInspection(name, typeOfPlace));
 }
 
 void addVeterinarian(){
-
+    std::string name = getString("Enter the name of the Veterinarian");
+    //Finish
 }
+
 //Calls the paaropriate function used to create an object depending on the parameter
 void createObject(int type){
     switch(type){
@@ -314,7 +334,11 @@ void createObject(int type){
             }
             break;
         case 4:
-            addRemovalRequest();
+            if(clientsExist())
+                addRemovalRequest();
+            else{
+                std::cout << "There are currently no clients registered" << std::endl;
+            }
             break;
         case 5:
             addPlaceForInspection();
@@ -325,9 +349,26 @@ void createObject(int type){
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void updateObject(int option){
 
 }
+
+///////////////////////////////////////     Display     //////////////////////////////
 
 void displayAnimal(){
     system("cls");
@@ -367,6 +408,13 @@ void displayRemovalRequest(){
     system("pause");
 }
 
+void displayPlaceForInspection(){
+    system("cls");
+    PlaceForInspection * place = getPlaceForInspection("Select the Location to be displayed");
+    place -> display();
+    system("pause");
+}
+
 void displayObjectInfo(int type){
     switch(type){
         case 1:
@@ -397,18 +445,26 @@ void displayObjectInfo(int type){
             }
             break;
         case 4:
-            if(interventionsExist()){
+            if(interventionsExist())
                 displayRemovalRequest();
-            } else{
+            else{
                 system("cls");
                 std::cout << "There are currently no removal requests recorded." << std::endl;
                 system("pause");
             }
             break;
-
+        case 5:
+            if(placesForInspectionExist())
+                displayPlaceForInspection();
+            else{
+                system("cls");
+                std::cout << "There are currently no places to be inspected recorded" << std::endl;
+                system("pause");
+            }
     }
 }
 
+////////////////////////////////    Display ALL     /////////////////////////////////////////////
 void displayAllAnimals(){
     if(animalsExist())
         for(int x = 0; x < animals.size(); x++){
@@ -476,6 +532,19 @@ void displayAllRemovalRequests(){
     }
 }
 
+void displayAllPlacesForInspection(){
+    if(placesForInspectionExist())
+        for(int x = 0; x < placesForInspection.size(); x++){
+            system("cls");
+            placesForInspection[x] -> display();
+            system("pause");
+        }
+    else{
+        std::cout << "There are currently no places for inspection registered" << std::endl;
+        system("pause");
+    }
+}
+
 void displayAllObjectInfo(int option){
     switch(option){
         case 1:
@@ -490,9 +559,13 @@ void displayAllObjectInfo(int option){
         case 4:
             displayAllRemovalRequests();
             break;
+        case 5:
+            displayAllPlacesForInspection();
+            break;
     }
 }
 
+////////////////////////////////    Delete      //////////////////////////////
 void deleteAnimal(){
     if(animalsExist()){    
         int animalToBeDeleted = displayArrowMenu("Select the animal to be deleted", getAllBasicAnimalInfo()) - 1;
@@ -604,6 +677,29 @@ void deleteRemovalRequest(){
     }
 }
 
+void deletePlaceForInspection(){
+    if(placesForInspectionExist()){
+        int placeToBeDeleted = displayArrowMenu("Select the place to be deleted", getAllBasicPlaceOfInspectionInfo()) - 1;
+        placesForInspection[placeToBeDeleted] -> display();
+        system("pause");
+        if(displayArrowMenu("Delete the place from the system?", yesNoOptions) == 1){
+            system("cls");
+            delete(placesForInspection[placeToBeDeleted]);
+            std::cout << "The place has been deleted from the system" << std::endl;
+            placesForInspection.erase(placesForInspection.begin() + placeToBeDeleted);
+            system("pause");
+        } else {
+            system("cls");
+            std::cout << "The place was not deleted" << std::endl;
+            system("pause");
+        }
+    } else {
+        system("cls");
+        std::cout << "There are currently no places registered" << std::endl;
+        system("pause");
+    }
+}
+
 void deleteObject(int option){
     switch(option){
         case 1:
@@ -618,9 +714,13 @@ void deleteObject(int option){
         case 4:
             deleteRemovalRequest();
             break;
+        case 5:
+            deletePlaceForInspection();
+            break;
     }
 }
 
+////////////////////////////////    Extra Options   //////////////////////////////
 void extraPlaceForInspectionOptions(){
     
 }
