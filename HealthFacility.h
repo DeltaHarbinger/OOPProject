@@ -31,12 +31,20 @@ public:
 		return openingDays;
 	}
 
-	std::vector<Veterinarian> getVeterinarians(){
+	std::vector<Veterinarian *> getVeterinarians(){
 		return veterinarians;
 	}
 
-	std::vector<Intervention> getStaffRecords(){
+	std::vector<Intervention *> getStaffRecords(){
 		return staffRecords;
+	}
+
+	void addVeterinarian(Veterinarian * veterinarian){
+		veterinarians.push_back(veterinarian);
+	}
+
+	void addStaffRecord(Intervention * record){
+		staffRecords.push_back(record);
 	}
 
 private:
@@ -44,10 +52,8 @@ private:
 	//Days start on Sunday with is represented as 0
 	int openingDays[7];
 	std::string typeOfFacility;
-	std::vector<Veterinarian> veterinarians;
-	std::vector<Intervention> staffRecords;
+	std::vector<Veterinarian *> veterinarians;
+	std::vector<Intervention *> staffRecords;
 };
-
-
 
 #endif
