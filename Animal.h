@@ -3,11 +3,14 @@
 
 #include "Client.h"
 #include <string>
+#include <fstream>
 class Animal
 {
 public:
 	Animal()
 	{
+		incrementCounter();
+		this -> id = numberOfAnimals;
 		this -> name = "N/A";
 		this -> type = "N/A";
 		this -> gender = "N/A";
@@ -17,7 +20,10 @@ public:
 		this -> owner = 0;
 	}
 	
-	Animal(std::string name, std::string type, std::string gender, std::string breed, int approxAge, bool adoptionCandidate){
+	Animal(std::string name, std::string type, std::string gender, std::string breed, int approxAge, bool adoptionCandidate)
+	{
+		incrementCounter();
+		this -> id = numberOfAnimals;
 		this -> name = name;
 		this -> type = type;
 		this -> gender = gender;
@@ -36,6 +42,10 @@ public:
 	}
 
 	//Getters
+	int getId(){
+		return id;
+	}
+
 	std::string getName(){
 		return name;
 	}
@@ -66,6 +76,10 @@ public:
 
 
 	//Setters
+	void setId(int id){
+		this -> id = id;
+	}
+
 	void setName(std::string name){
 		this -> name = name;
 	}
@@ -98,15 +112,39 @@ public:
 		this -> ~Animal();
 	}
 
+	void incrementCounter(){
+		numberOfAnimals++;
+	}
+
 	void display(){
-		std::cout << "Name:\t" << name << std::endl << "Type:\t" << type << std::endl << "Gender:\t" << gender << std::endl;
+		std::cout << "ID\t" << id << std::endl << "Name:\t" << name << std::endl << "Type:\t" << type << std::endl << "Gender:\t" << gender << std::endl;
 		std::cout << "Breed:\t" << breed << std::endl << "Approx Age:\t" << approxAge << std::endl << "Adoption Candidate:\t" << (adoptionCandidate ? "Yes" : "No") << std::endl;
 		if(owner){
 			std::cout << "Owner Name:\t" << (owner -> getFName()) << " " << (owner -> getLName()) << std::endl;
 		}
 	}
 
+	void writeToFile(){
+		std::ofstream animalWriter;
+		std::ofstream ownerWriter;
+		try{
+			animalWriter.open("newAnimals.txt", std::ios::app);
+			animalWriter << id << '\t' << name << '\t' << type << '\t' << gender << '\t' << breed << '\t' << approxAge << '\t' << adoptionCandidate << '\t';// << (owner ? owner -> getEmail() : 0) << std::endl;
+			if(!owner){
+				animalWriter << 0 << '\n';
+			} else {
+				animalWriter << (owner -> getId()) << '\n';
+			}
+			ownerWriter.close();
+		} catch (std::exception& e){
+			system("cls");
+			std::cout << "Failure while storing animals" << std::endl;
+			system("pause");
+		}
+	}
+
 private:
+	int id;
 	std::string name;
 	std::string type;
 	std::string gender;
@@ -114,7 +152,9 @@ private:
 	int approxAge;
 	bool adoptionCandidate;
 	Client * owner;
-
+	static int numberOfAnimals;
 };
+
+int Animal::numberOfAnimals = 0;
 
 #endif

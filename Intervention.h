@@ -121,6 +121,19 @@ public:
 		return numberOFInterventions;
 	}
 
+	void writeToFile(){
+		std::ofstream interventionWriter;
+		try{
+			interventionWriter.open("newInterventions.txt", std::ios::app);
+			interventionWriter << interventionNumber << '\t' << reason << '\t' << abilityToPay << '\t' << payInFull << '\t' << makeContribution << '\t' << (animal -> getId()) << '\t' << (client -> getId()) << '\t' << intendedDate << '\t' << creationDateAndTime << '\n';
+		} catch(std::exception& e){
+			system("cls");
+			std::cout << "Failure while storing intervention" << std::endl;
+			system("pause");
+		}
+		
+	}
+
 private:
 	int interventionNumber;
 	std::string reason;
