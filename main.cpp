@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <conio.h>
+#include <cstdio>
 #include <windows.h>
 #include "HealthFacility.h"
 #include "PlaceForInspection.h"
@@ -59,7 +61,7 @@ int getNumber(std::string message){
 }
 
 bool getBoolean(std::string message){
-    return displayArrowMenu(message, yesNoOptions);
+    return displayArrowMenu(message, yesNoOptions) == 1;
 }
 
 int getMonth(std::string message){
@@ -125,6 +127,10 @@ bool interventionsExist(){
 
 bool placesForInspectionExist(){
     return placesForInspection.size() > 0;
+}
+
+bool veterinariansExist(){
+    return (facilities[0] -> getVeterinarians()).size() > 0 || (facilities[1] -> getVeterinarians()).size() > 0;
 }
 
 
@@ -313,7 +319,8 @@ void addPlaceForInspection(){
 
 void addVeterinarian(){
     std::string name = getString("Enter the name of the Veterinarian");
-    //Finish
+    HealthFacility * employedFacility = getHealthFacility("Select the facility that th veterinarian is employed at");
+    employedFacility -> addVeterinarian(new Veterinarian(name));
 }
 
 //Calls the paaropriate function used to create an object depending on the parameter
@@ -349,11 +356,149 @@ void createObject(int type){
     }
 }
 
+void updateAnimalName(Animal * targetAnimal){
+    std::string name = getString("Enter the animal's new name");
+    targetAnimal -> setName(name);
+}
+
+void updateAnimalType(Animal * targetAnimal){
+    std::string type = getString("Enter the animal's type");
+    targetAnimal -> setType(type);
+}
+
+void updateAnimalGender(Animal * targetAnimal){
+    std::string gender = getString("Enter the animal's gender");
+    targetAnimal -> setGender(gender);
+}
+
+void updateAnimalBreed(Animal * targetAnimal){
+    std::string breed = getString("Enter the animal's breed");
+    targetAnimal -> setBreed(breed);
+}
+
+void updateAnimalAge(Animal * targetAnimal){
+    int age = getNumber("Enter the animal's age");
+    targetAnimal -> setApproxAge(age);
+}
+
+void updateAnimalAdoptionCandidateStatus(Animal * targetAnimal){
+    bool adoptionCandidateStatus = getBoolean("Is the animal a candidate for adoption?");
+    targetAnimal -> setAdoptionCandidate(adoptionCandidateStatus);
+}
+
+void updateAnimalOwner(Animal * targetAnimal){
+    std::vector<std::string> clientInfo = getAllClientNames();
+    clientInfo.push_back("None");
+    int newClient = displayArrowMenu("Selet the animal's owner", clientInfo) - 1;
+    newClient == clients.size() ? targetAnimal -> setOwner(0) : targetAnimal -> setOwner(clients[newClient]);
+}
+
+void updateAnimalInfo(int option){
+    Animal * targetAnimal = getAnimal("Select the animal to be updated");
+    switch(option){
+        case 1:
+            updateAnimalName(targetAnimal);
+            break;
+        case 2:
+            updateAnimalType(targetAnimal);
+            break;
+        case 3:
+            updateAnimalGender(targetAnimal);
+            break;
+        case 4:
+            updateAnimalBreed(targetAnimal);
+            break;
+        case 5:
+            updateAnimalAge(targetAnimal);
+            break;
+        case 6:
+            updateAnimalAdoptionCandidateStatus(targetAnimal);
+            break;
+        case 7:
+            updateAnimalOwner(targetAnimal);
+            break;
+        
+    }
+}
+
+void updateAnimal(){
+    std::vector<std::string> updateOptions = {"Name", "Type", "Gender", "Breed", "Age", "Update Adoption Candidate Status", "Change owner", "Cancel"};
+    updateAnimalInfo(displayArrowMenu("Select the field to be updated", updateOptions));
+}
+
+void updateClientFirstName(Client * targetClient){
+    std::string fName = getString("Enter the client's first name");
+    targetClient -> setFName(fName);
+}
+
+void updateClientLastNAme(Client * targetClient){
+    std::string lName = getString("Enter the client's last name");
+    targetClient -> setLName(lName);
+}
+
+void updateClientTelephoneNumber(Client * targetClient){
+    std::string telephoneNo = getString("Enter the client's telephone number");
+    targetClient -> setTelephoneNo(telephoneNo);
+}
+
+void updateClientAddress(Client * targetClient){
+    std::string address = getString("Enter the client's address");
+    targetClient -> setAddress(address);
+}
+
+void updateClientEmail(Client * targetClient){
+    std::string email = getString("Enter the client's email");
+    targetClient -> setEmail(email);
+}
+
+void updateClientInfo(int option){
+    Client * targetClient = getClient("Select the client to be updated");
+    switch(option){
+        case 1:
+
+            break;
+        case 2:
+
+            break;
+        case 3:
+
+            break;
+        case 4:
+
+            break;
+        case 5:
+
+            break;
+    }
+}
+
+void updateClient(){
+    std::vector<std::string> updateOptions = {"First Name", "Last Name", "Telephone number", "Address", "Email", "Cancel"};
+    updateClientInfo(displayArrowMenu("Select the field to be updated", updateOptions));
+}
+
+void updateAppointmentReason(Intervention * targetAppointment){
+
+}
 
 
 
+void updateAppointmentInfo(int option){
+    Intervention * targetAppointment = getAppointment("Select the appointment to be updated");
+    switch(option){
+        case 1:
+            updateAppointmentReason(targetAppointment);
+            break;
+        case 2:
 
+            break;
+    }
+}
 
+void updateAppiontment(){
+    std::vector<std::string> updateOptions = {"Reason", "Ability To Pay", "Ability to Pay in Full", "Ability to Make Contribution", "Animal Scheduled", "Client Scheduled", "Intended Date", "Cancel"};
+    updateAppointmentInfo(displayArrowMenu("Select the field to be updated", updateOptions));
+}
 
 
 
@@ -365,7 +510,16 @@ void createObject(int type){
 
 
 void updateObject(int option){
-
+    switch(option){
+        case 1:
+            updateAnimal();
+            break;
+        case 2: 
+            updateClient();
+            break;
+        case 3:
+            break;
+    }
 }
 
 ///////////////////////////////////////     Display     //////////////////////////////
@@ -415,6 +569,10 @@ void displayPlaceForInspection(){
     system("pause");
 }
 
+void displayVeterinarian(){
+
+}
+
 void displayObjectInfo(int type){
     switch(type){
         case 1:
@@ -459,6 +617,14 @@ void displayObjectInfo(int type){
             else{
                 system("cls");
                 std::cout << "There are currently no places to be inspected recorded" << std::endl;
+                system("pause");
+            }
+        case 6:
+            if(veterinariansExist())
+                displayVeterinarian();
+            else {
+                system("cls");
+                std::cout << "There are currently no veterinarians recorded" << std::endl;
                 system("pause");
             }
     }
@@ -545,6 +711,27 @@ void displayAllPlacesForInspection(){
     }
 }
 
+void displayAllVeterinarians(){
+    if(veterinariansExist()){
+        for(int x = 0; x < 2; x++){
+            bool displayed = false;
+            std::vector<Veterinarian *> veterinarians = facilities[x] -> getVeterinarians();
+            if(veterinarians.size() > 0){
+                for(int y = 0; y < veterinarians.size(); y++){
+                    system("cls");
+                    veterinarians[y] -> display();
+                    system("pause");
+                    displayed = true;
+                }
+            }
+            if(!displayed){
+                std::cout << "There are currently no veterinarians registered for the facility at " << facilities[x] -> getAddress() << std::endl;
+                system("pause");
+            }
+        }
+    }
+}
+
 void displayAllObjectInfo(int option){
     switch(option){
         case 1:
@@ -562,6 +749,8 @@ void displayAllObjectInfo(int option){
         case 5:
             displayAllPlacesForInspection();
             break;
+        case 6:
+            displayAllVeterinarians();
     }
 }
 
@@ -769,18 +958,68 @@ void executeMenuOption(int option){
     }
 }
 
+void commitNewAnimals(){
+    try{
+        std::remove("animals.txt");
+        std::rename("newAnimals.txt", "animals.txt");
+        std::remove("owners.txt");
+        std::rename("newOwners.txt", "owners.txt");
+    } catch(std::exception& e){
+        system("cls");
+        std::cout << "Error commiting changes to animals, all changes have been reverted" << std::endl;
+    }
+}
+
+void writeAnimals(){
+    for(int x = 0; x < animals.size(); x++){
+        animals[x] -> writeToFile();
+        if(x == animals.size() - 1)
+            commitNewAnimals();
+    }
+
+}
+
+void commitNewClients(){
+    try{
+        std::remove("clients.txt");
+        std::rename("newClients.txt", "clients.txt");
+    } catch(std::exception& e){
+        system("cls");
+        std::cout << "Error commiting changes to clients, all changes have been reverted" << std::endl;
+    }
+}
+
+void writeClients(){
+    for(int x = 0; x < clients.size(); x++){
+        clients[x] -> writeToFile();
+        if(x == clients.size() - 1){
+            commitNewClients();
+        }
+    }
+}
+
+void writeInterventions(){
+    for(int x = 0; x < 2; x++){
+        std::vector<Intervention *> records = facilities[x] -> getStaffRecords();
+        for(int y = 0; y < records.size(); y++){
+
+        }
+    }
+}
+
+void writeObjects(){
+    writeAnimals();
+    writeClients();
+}
 
 int main()
 {
-    
-
-
     int menuOption = 0;
     while((menuOption = menuOption = displayArrowMenu("Main Menu\n", menuOptions)) != 7)
     {
         executeMenuOption(menuOption);
     }
-
+    writeObjects();
     return 0;
 }
 

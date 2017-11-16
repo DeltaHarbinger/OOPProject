@@ -26,6 +26,10 @@ public:
 		return true;
 	}
 
+	void display(){
+		std::cout << "Name:\t" << name << std::endl;
+	}
+
 	std::string getName(){
 		return name;
 	}
