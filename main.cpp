@@ -1007,9 +1007,44 @@ void writeInterventions(){
     }
 }
 
+void commitPlacesForInspection()
+{
+    try{
+        std::remove("placesForInspection.txt");
+        std::rename("newPlacesForInspection.txt" , "placesForInspection.txt");
+    }catch(std::exception& error)
+    {
+        system("cls");
+        std::cout << "Error commiting changes to PlacesForInspection, all changes have been reverted" << std::endl;
+    }
+}
+
+void writePlacesForInspection()
+{
+    for(int i = 0; i < placesForInspection.size(); i++)
+    {
+        placesForInspection[i] ->writeToFile();
+        if( i == placesForInspection.size()-1)
+            commitPlacesForInspection();
+    }
+}
+
+// void writeVeterinarians()
+// {
+//     for( int i = 0; i < 2; i++)
+//     {
+//         std::vector< Veterinarian *> veterinarians = facilities[i] -> getVeterinarians();
+//         for( int j = 0; j < veterinarians.size(); j++)
+//         {
+
+//         }
+//     }
+// }
+
 void writeObjects(){
     writeAnimals();
     writeClients();
+    writePlacesForInspection();
 }
 
 int main()
