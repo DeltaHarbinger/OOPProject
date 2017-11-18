@@ -1,3 +1,5 @@
+//Created by Philip newman and Brandon Chung
+
 #ifndef CLIENT_H
 #define CLIENT_H
 
@@ -19,7 +21,7 @@ public:
 	Client(std::string fName, std::string lName, std::string telephoneNo, std::string address, std::string email)
 	{
 		incrementCounter();
-		this -> id = id;
+		this -> id = numberOfClients;
 		this -> fName = fName;
 		this -> lName = lName;
 		this -> telephoneNo = telephoneNo;
@@ -81,7 +83,7 @@ public:
 	}
 
 	void incrementCounter(){
-		numberOfClients++;
+		numberOfClients = numberOfClients + 1;
 	}
 
 	void display(){
@@ -92,7 +94,7 @@ public:
 		std::ofstream clientWriter;
 		try{
 			clientWriter.open("newClients.txt", std::ios::app);
-			clientWriter << fName << '\t' << lName << '\t' << telephoneNo << '\t' << address << '\t' << email << '\n';
+			clientWriter << id << '\t' << fName << '\t' << lName << '\t' << telephoneNo << '\t' << address << '\t' << email << '\n';
 		} catch(std::exception& e){
 			system("cls");
 			std::cout << "Failure while storing clients" << std::endl;

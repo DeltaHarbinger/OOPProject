@@ -33,6 +33,7 @@ public:
 	std::string getName(){
 		return name;
 	}
+	
 private:
 	std::string name;
 

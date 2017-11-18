@@ -24,7 +24,7 @@ std::vector<PlaceForInspection *> placesForInspection;
 //Yes no option menu
 std::vector<std::string> yesNoOptions = {"Yes", "No"};
 //Menu options used in main menu
-std::vector<std::string> menuOptions = {"Animals", "Clients", "Appointments", "Removal Requests", "Places for Inspection", "Veterinarians", "Exit"};
+std::vector<std::string> menuOptions = {"Animals", "Clients", "Appointments", "Removal Requests", "Places for Inspection", "Veterinarians", "Save and Exit", "Reports", "Page 2"};
 
 
 //Function used to generate an arrow menu
@@ -42,21 +42,60 @@ int displayArrowMenu(std::string message, std::vector<std::string> menuItems)
     return position + 1;
 }
 
+//A string is safe if it has no tabs or other possible characters that may break a stream that arent accounted for
+bool stringSafe(std::string s){
+    bool valid = true;
+    for(int x = 0; x < s.size() && valid; x++){
+        s[x] != '\t' ? false : valid = false;
+    }
+    return valid;
+}
 
-
+bool stringOnlyHasLetters(std::string s){
+    bool valid = true;
+    if(s == ""){
+        return false;
+    }
+    for(int x = 0; x < s.size() && valid; x++){
+        isalpha(s[x]) ? false : valid = false;
+    }
+    return valid;
+}
 
 //Function used to get different types of variables in a generic way
-std::string getString(std::string message){
-    std::cout << message << std::endl << "> ";
+std::string getString(std::string message, bool strict){
+    system("cls");
+    std::string input = "";
+    std::cout << message << std::endl << (strict ? ">> " : "> ");
     std::cin.sync();
-    getline(std::cin, message);
-    return message;
+    getline(std::cin, input);
+    if(input == ""){
+        input = "NA";
+    }
+    while(strict && !stringOnlyHasLetters(input)){
+        std::cout << std::endl << message << std::endl << "(Letters are the only accepted text here)" << std::endl << "> ";
+        std::cin.sync();
+        getline(std::cin, input);
+    }
+    while(!strict && !stringSafe(input)){
+        std::cout << message << std::endl << (strict ? ">> " : "> ");
+        std::cin.sync();
+        getline(std::cin, input);
+    }
+    return input;
 }
 
 int getNumber(std::string message){
+    system("cls");
     std::cout << message << std::endl << "# ";
     int number;
     std::cin >> number;
+    while(!std::cin){
+        std::cin.clear();
+        std::cin.ignore(256, '\n');
+        std::cout << std::endl << message << std::endl << "Please enter a valid value" << std::endl << "# ";
+        std::cin >> number;
+    }
     return number;
 }
 
@@ -94,15 +133,16 @@ bool validDay(int year, int month, int day){
     }
 }
 
-struct tm * getDate(std::string dateReason){
+struct tm * getDate(std::string dateReason, int mode){
+    system("cls");
     time_t source = time(NULL);
     struct tm * date = localtime(&source);
-    date -> tm_year = getNumber("Enter the intended year for the " + dateReason) - 1900;
+    mode ? date -> tm_year = getNumber("Enter the intended year for the " + dateReason) - 1900 : false;
     date -> tm_mon = getMonth("Select the intended month for the " + dateReason);
     date -> tm_mday = getNumber("Enter the intended day for the " + dateReason);
     while(!validDay(date -> tm_year, date -> tm_mon, date -> tm_mday)){
         std::cout << "Please enter a valid date";
-        date -> tm_year = getNumber("Enter the intended year for the " + dateReason) - 1900;
+        mode ? date -> tm_year = getNumber("Enter the intended year for the " + dateReason) - 1900 : false;
         date -> tm_mon = getMonth("Select the intended month for the " + dateReason);
         date -> tm_mday = getNumber("Enter the intended day for the " + dateReason);
     }
@@ -119,6 +159,16 @@ bool animalsExist(){
 
 bool clientsExist(){
     return clients.size() > 0;
+}
+
+int clientsExist(int id){
+    int found = 0;
+    for(int x = 0; x < clients.size() && !found; x++){
+        if((clients[x] -> getId()) == id ){
+            found = x + 1;
+        }
+    }
+    return found;
 }
 
 bool interventionsExist(){
@@ -229,10 +279,10 @@ PlaceForInspection * getPlaceForInspection(std::string message){
 
 //Adds an animal to the global animal vector after taking all of the information needed to create it
 void addAnimal(){
-    std::string name = getString("Enter the animal's name");
-    std::string type = getString("Enter the type of animal");
-    std::string gender = getString("Enter the animal's gender");//Change Genders to list
-    std::string breed = getString("Enter the animal's breed");
+    std::string name = getString("Enter the animal's name", 1);
+    std::string type = getString("Enter the type of animal", 1);
+    std::string gender = getString("Enter the animal's gender", 1);//Change Genders to list
+    std::string breed = getString("Enter the animal's breed", 1);
     int approxAge = getNumber("Enter the age");
     bool adoptionCandidate = getBoolean("Is this animal a candidate for adoption?");
     Animal * newAnimal = new Animal(name, type, gender, breed, approxAge, adoptionCandidate);
@@ -254,8 +304,8 @@ void addAnimal(){
 
 ////////////////////////////////////    Add Object  ////////////////////////////////
 void addAnimal(Client * client){
-    std::string type = getString("Enter the type of animal");
-    std::string breed = getString("Enter the animal's breed");
+    std::string type = getString("Enter the type of animal", 1);
+    std::string breed = getString("Enter the animal's breed", 1);
     animals.push_back(new Animal(type, breed));
     system("cls");
     std::cout << "The data for the animal that " << (client -> getFName()) << " has requested to be removed has been stored" << std::endl;
@@ -263,18 +313,18 @@ void addAnimal(Client * client){
 }
 
 void addClient(){
-    std::string fName = getString("Enter the client's first name");
-    std::string lName = getString("Enter the client's last name");
-    std::string telephoneNo = getString("Enter the client's telephone number");
-    std::string address = getString("Enter the client's address");
-    std::string email = getString("Enter the client's email");
+    std::string fName = getString("Enter the client's first name", 1);
+    std::string lName = getString("Enter the client's last name", 1);
+    std::string telephoneNo = getString("Enter the client's telephone number", 0);
+    std::string address = getString("Enter the client's address", 0);
+    std::string email = getString("Enter the client's email", 0);
     Client * newClient = new Client(fName, lName, telephoneNo, address, email);
     clients.push_back(newClient);
 }
 
 void addAppointment(){
     
-    std::string reason = getString("State the reason for the appointment");
+    std::string reason = getString("State the reason for the appointment", 0);
     bool abilityToPay = getBoolean("Does the client have the ability to pay?");
     bool payInFull = false;
     if(abilityToPay)
@@ -282,13 +332,15 @@ void addAppointment(){
     bool makeContribution = getBoolean("Does the client intend to make a contribution?");
     Animal * animal = getAnimal("Select the animal");
 
-    struct tm * intendedDate = getDate("appointment");
+    struct tm * intendedDate = getDate("appointment", 1);
     mktime(intendedDate);
     std::string intendedDateString = asctime(intendedDate);
+    intendedDateString.pop_back();
     time_t currentTime = time(NULL);
     std::string currentTimeString = asctime(localtime(&currentTime));
-    
+    currentTimeString.pop_back();
     Intervention * newIntervention = new Intervention(reason, abilityToPay, payInFull, makeContribution, animal, intendedDateString, currentTimeString);
+    newIntervention -> setReason(reason);
     getHealthFacility("Select the facility") -> addStaffRecord(newIntervention);
 }
 //Adds removal request to 
@@ -301,24 +353,26 @@ void addRemovalRequest(){
     if(abilityToPay)
         payInFull = getBoolean("Will the client pay in full?");
     bool makeContribution = getBoolean("Does the client intend to make a contribution?");
-    struct tm * intendedDate = getDate("removal");
+    struct tm * intendedDate = getDate("removal", 1);
     mktime(intendedDate);
     std::string intendedDateString = asctime(intendedDate);
+    intendedDateString.pop_back();
     time_t currentTime = time(NULL);
     std::string currentTimeString = asctime(localtime(&currentTime));
-    std::string address = getString("Enter the address that the animal is currently located at");
+    currentTimeString.pop_back();
+    std::string address = getString("Enter the address that the animal is currently located at", 0);
     RemovalRequest * newRemovalRequest = new RemovalRequest(abilityToPay, payInFull, makeContribution, animal, client, intendedDateString, currentTimeString, address);
     getHealthFacility("Select the facility") -> addStaffRecord(newRemovalRequest);
 }
 
 void addPlaceForInspection(){
-    std::string name = getString("Enter the name of the Facility");
-    std::string typeOfPlace = getString("Enter the type of facility");
+    std::string name = getString("Enter the name of the Facility", 0);
+    std::string typeOfPlace = getString("Enter the type of facility", 1);
     placesForInspection.push_back(new PlaceForInspection(name, typeOfPlace));
 }
 
 void addVeterinarian(){
-    std::string name = getString("Enter the name of the Veterinarian");
+    std::string name = getString("Enter the name of the Veterinarian", 1);
     HealthFacility * employedFacility = getHealthFacility("Select the facility that th veterinarian is employed at");
     employedFacility -> addVeterinarian(new Veterinarian(name));
 }
@@ -357,22 +411,22 @@ void createObject(int type){
 }
 
 void updateAnimalName(Animal * targetAnimal){
-    std::string name = getString("Enter the animal's new name");
+    std::string name = getString("Enter the animal's new name", 1);
     targetAnimal -> setName(name);
 }
 
 void updateAnimalType(Animal * targetAnimal){
-    std::string type = getString("Enter the animal's type");
+    std::string type = getString("Enter the animal's type", 1);
     targetAnimal -> setType(type);
 }
 
 void updateAnimalGender(Animal * targetAnimal){
-    std::string gender = getString("Enter the animal's gender");
+    std::string gender = getString("Enter the animal's gender", 1);
     targetAnimal -> setGender(gender);
 }
 
 void updateAnimalBreed(Animal * targetAnimal){
-    std::string breed = getString("Enter the animal's breed");
+    std::string breed = getString("Enter the animal's breed", 1);
     targetAnimal -> setBreed(breed);
 }
 
@@ -427,27 +481,27 @@ void updateAnimal(){
 }
 
 void updateClientFirstName(Client * targetClient){
-    std::string fName = getString("Enter the client's first name");
+    std::string fName = getString("Enter the client's first name", 1);
     targetClient -> setFName(fName);
 }
 
 void updateClientLastNAme(Client * targetClient){
-    std::string lName = getString("Enter the client's last name");
+    std::string lName = getString("Enter the client's last name", 1);
     targetClient -> setLName(lName);
 }
 
 void updateClientTelephoneNumber(Client * targetClient){
-    std::string telephoneNo = getString("Enter the client's telephone number");
+    std::string telephoneNo = getString("Enter the client's telephone number", 0);
     targetClient -> setTelephoneNo(telephoneNo);
 }
 
 void updateClientAddress(Client * targetClient){
-    std::string address = getString("Enter the client's address");
+    std::string address = getString("Enter the client's address", 0);
     targetClient -> setAddress(address);
 }
 
 void updateClientEmail(Client * targetClient){
-    std::string email = getString("Enter the client's email");
+    std::string email = getString("Enter the client's email", 0);
     targetClient -> setEmail(email);
 }
 
@@ -909,32 +963,143 @@ void deleteObject(int option){
     }
 }
 
-////////////////////////////////    Extra Options   //////////////////////////////
-void extraPlaceForInspectionOptions(){
+void generateFacilityReport(){
+    HealthFacility * selectedFacility = getHealthFacility("Select the facility that the report will be generated for");
+    system("cls");
+    std::vector<Intervention *> records = selectedFacility -> getStaffRecords();
+    std::cout << "Number of records:\t" << records.size() << std::endl;
+    std::cout << "Number of Veterinarians:\t" << (selectedFacility -> getStaffRecords()).size() << std::endl;
+    int visits = 0;
+    int requests = 0;
+    for(int x = 0; x < records.size(); x++){
+        if((records[x] -> getReason()) == "Removal Request"){
+            requests++;
+        } else {
+            visits++;
+        }
+    }
+
+    std::cout << "For more in depth reports, select a specific animal or date" << std::endl;
+    system("pause");
+}
+
+void generateAnimalReport(){
+    if(!animalsExist()){
+        std::cout << "There are currently no animals registered" << std::endl;
+        system("pause");
+        return;
+    }
+    std::string type;
+    int recordsFound = 0;
+    for(int x = 0; x < 2; x++){
+        std::vector<Intervention *> records = facilities[x] -> getStaffRecords();
+        for(int y = 0; y < records.size(); y++){
+            if(records[y] -> getAnimal() -> getType() == type){
+                system("cls");
+                records[y] -> display();
+                system("pause");
+                recordsFound++;
+            }
+        }
+    }
+    system("cls");
+    std::cout << "Number of records found for the specified animal type:\t" << recordsFound << std::endl;
+    system("pause");
+}
+
+void generateDateReport(){
+    struct tm * selectedDate;
+    selectedDate = getDate("report", 0);
+    mktime(selectedDate);
+    std::string dateText = asctime(selectedDate);
+    dateText = dateText.substr(4, 6);
+    int recordCounter = 0;
+    int requestCounter = 0;
+    int appointmentCounter = 0;
+    for(int x = 0; x < 2; x++){
+        std::vector<Intervention *> records = facilities[x] -> getStaffRecords();
+        for(int y = 0; y < records.size(); y++){
+            std::string intendedDateSubstring = (records[y] -> getIntendedDate()).substr(4, 6);
+            if(intendedDateSubstring == dateText){
+                records[y] -> display();
+                system("pause");
+                system("cls");
+                recordCounter++;
+                if(records[y] -> getReason() != "Removal Request"){
+                    appointmentCounter++;
+                } else {
+                    requestCounter++;
+                }
+            }
+        }
+    }
+    std::cout << "Number of records found:\t" << recordCounter << std::endl;
+    std::cout << "Number of Appointments found:\t" << appointmentCounter << std::endl;
+    std::cout << "Number of removal requests found:\t" << requestCounter << std::endl;
+    system("pause");
+}
+
+void generateReports(){
+    std::vector<std::string> reportTypes = {"Facility", "Animal", "Date"};
+    switch(displayArrowMenu("Select the type of report to generate", reportTypes)){
+        case 1:
+            generateFacilityReport();
+            break;
+        case 2:
+            generateAnimalReport();
+            break;
+        case 3:
+            generateDateReport();
+            break;
+    }
+}
+
+void concludeRemoval(){
+    HealthFacility * facility = getHealthFacility("removal");
+    std::vector<Intervention *> records = facility -> getStaffRecords();
+    for(int x = 0; x < records.size(); x++){
+        if((records[x] -> getReason()) != "Removal Request"){
+            records.erase(records.begin() + x);
+        } else {
+            if(records[x] -> getKeptForAdoption() != 2){
+                records.erase(records.begin() + x);
+            }
+        }
+    }
+    if(records.size() == 0){
+        std::cout << "There were no incomplete requests" << std::endl;
+        system("pause");
+    } else {
+        std::vector<std::string> optionsForConclusion = getAllBasicInterventionInfo(records);
+        optionsForConclusion.push_back("cancel");
+        int selected = displayArrowMenu("Select the request to be concluded", optionsForConclusion) - 1;
+        if(selected != optionsForConclusion.size()){
+            records[selected] -> setKeptForAdoption(!(displayArrowMenu("Was the animal kept?", yesNoOptions) - 1));
+        }
+    }
     
 }
 
-void extraVeterinarionOptions(){
-
-}
-
-void displayPageTwo(int option){
-    switch(option){
-        case 5:
-            extraPlaceForInspectionOptions();
-            break;
-        case 6:
-            extraVeterinarionOptions();
+void displayPageTwo(){
+    std::vector<std::string> functionOptions = {"Conclude Removal", "Inspect Place"};
+    switch(displayArrowMenu("Select an option", functionOptions)){
+        case 1:
+            concludeRemoval();
             break;
     }
 }
 
 void executeMenuOption(int option){
     int selectedOption = option - 1;
-    std::vector<std::string> functionOptions = {("Add " + menuOptions[selectedOption]), ("Update " + menuOptions[selectedOption]), ("View " + menuOptions[selectedOption]), ("View all " + menuOptions[selectedOption]), ("Delete " + menuOptions[selectedOption])};
-    if(option == 5 || option == 6){
-        functionOptions.push_back("Page 2");
+    if(option == 8){
+        generateReports();
+        return;
     }
+    if(option == 9){
+        displayPageTwo();
+        return;
+    }
+    std::vector<std::string> functionOptions = {("Add " + menuOptions[selectedOption]), ("Update " + menuOptions[selectedOption]), ("View " + menuOptions[selectedOption]), ("View all " + menuOptions[selectedOption]), ("Delete " + menuOptions[selectedOption])};
     functionOptions.push_back("Back");
     switch(displayArrowMenu("Choose an option", functionOptions)){
         case 1:
@@ -952,9 +1117,7 @@ void executeMenuOption(int option){
         case 5:
             deleteObject(option);
             break;
-        case 6:
-            displayPageTwo(option);
-            break;
+
     }
 }
 
@@ -998,22 +1161,210 @@ void writeClients(){
     }
 }
 
+void commitNewInterventions(bool success){
+    try{
+        bool doIt = true;
+        if(!success)
+            doIt = displayArrowMenu("There was a problem commiting some of the changes, are you SURE that you would like to continue?\tThis Can lead to all data being corrupted!!!", yesNoOptions) == 2;
+        std::remove("interventions.txt");
+        std::rename("newInterventions.txt", "interventions.txt");
+    } catch(std::exception& e){
+        system("cls");
+        std::cout << "Error commiting changes to clients, all changes have been reverted" << std::endl;
+    }
+}
+
 void writeInterventions(){
+    bool allSuccess = true;
     for(int x = 0; x < 2; x++){
         std::vector<Intervention *> records = facilities[x] -> getStaffRecords();
         for(int y = 0; y < records.size(); y++){
-
+            (records[y] -> writeToFile(x) ) ? false : allSuccess = false;
+            if(y == records.size() - 1){
+                commitNewInterventions(allSuccess);
+            }
         }
     }
 }
 
+void commitPlacesForInspection()
+{
+    try{
+        std::remove("placesForInspection.txt");
+        std::rename("newPlacesForInspection.txt" , "placesForInspection.txt");
+    }catch(std::exception& error)
+    {
+        system("cls");
+        std::cout << "Error commiting changes to PlacesForInspection, all changes have been reverted" << std::endl;
+    }
+}
+
+void writePlacesForInspection()
+{
+    
+    for(int i = 0; i < placesForInspection.size(); i++)
+    {
+        placesForInspection[i] ->writeToFile();
+        if( i == placesForInspection.size()-1)
+            commitPlacesForInspection();
+    }
+}
+
+// void writeVeterinarians()
+// {
+//     for( int i = 0; i < 2; i++)
+//     {
+//         std::vector< Veterinarian *> veterinarians = facilities[i] -> getVeterinarians();
+//         for( int j = 0; j < veterinarians.size(); j++)
+//         {
+
+//         }
+//     }
+// }
+
 void writeObjects(){
     writeAnimals();
     writeClients();
+    writeInterventions();
+    writePlacesForInspection();
+}
+
+void readAnimals(){
+    std::ifstream animalReader;
+    try{
+        animalReader.open("animals.txt", std::ios::in);
+        int id;
+        std::string name;
+        std::string type;
+        std::string gender;
+        std::string breed;
+        int approxAge;
+        bool adoptionCandidate;
+        int ownerId;
+        while(animalReader >> id){
+            animalReader >> name >> type >> gender >> breed >> approxAge >> adoptionCandidate >> ownerId;
+            animals.push_back(new Animal(name, type, gender, breed, approxAge, adoptionCandidate));
+            animals[animals.size() - 1] -> setId(id);
+            Client * owner;
+            if(ownerId){
+                owner = clients[ownerId - 1];
+            } else {
+                owner = 0;
+            }
+            animals[animals.size() - 1] -> setOwner(owner);
+            animals[animals.size() - 1] -> display();
+        }
+
+    }catch(std::exception& e){
+        system("cls");
+        std::cout << "There was a problem reading animal data from the file";
+        system("pause");
+    }
+}
+
+void readClients(){
+    std::ifstream clientReader;
+    try{
+        clientReader.open("clients.txt", std::ios::in);
+        int id;
+        std::string fName;
+        std::string lName;
+        std::string telephoneNo;
+        std::string address;
+        std::string email;
+        while( clientReader >> id ){
+            clientReader >> fName >> lName >> telephoneNo;
+            address = "";
+            do{
+                std::string input;
+                clientReader >> input;
+                address = address + input + (char) (clientReader.peek());
+            }while(clientReader.peek() != 9);
+            getline(clientReader, email);
+            clients.push_back(new Client(fName, lName, telephoneNo, address, email));
+        }
+    } catch(std::exception& e){
+        system("cls");
+        std::cout << "There was a problem reading client data from the file";
+        system("pause");
+    }
+
+}
+
+void readInterventions(){
+    std::ifstream interventionReader;
+    try{
+        interventionReader.open("interventions.txt", std::ios::in);
+        int facilityNumber;
+        int interventionNumber;
+        std::string reason;
+        bool abilityToPay;
+        bool payInFull;
+        bool makeContribution;
+        int animalId;
+        int clientId;
+        std::string intendedDate;
+        std::string creationDateAndTime;
+        std::string address;
+        bool keptForAdoption;
+        while(interventionReader >> facilityNumber){
+            interventionReader >> interventionNumber >> reason;
+            while(interventionReader.peek() != 9){
+                std::string input;
+                reason = reason + (char) (interventionReader.peek());
+                interventionReader >> input;
+                reason = reason + input;
+            }
+            interventionReader >> abilityToPay >> payInFull >> makeContribution >> animalId >> clientId >> intendedDate;
+            
+            while(interventionReader.peek() != 9){
+                std::string input;
+                intendedDate = intendedDate + (char) (interventionReader.peek());
+                interventionReader >> input;
+                intendedDate = intendedDate + input;
+            }
+            
+            interventionReader >> creationDateAndTime;
+            while(interventionReader.peek() != 9 && interventionReader.peek() != -1 && interventionReader.peek() != 10){
+                std::string input;
+                creationDateAndTime = creationDateAndTime + (char) (interventionReader.peek());
+                interventionReader >> input;
+                creationDateAndTime = creationDateAndTime + input;
+            }
+            if(interventionReader.peek() == 9){
+                while(interventionReader.peek() != 9){
+                    std::string input;
+                    address = address + (char) (interventionReader.peek());
+                    interventionReader >> input;
+                    address = address + input;
+                }
+                interventionReader >> keptForAdoption;
+            }
+            if(reason == "Removal Request"){
+                RemovalRequest * newRequest = new RemovalRequest(abilityToPay, payInFull, makeContribution, animals[animalId - 1], clients[clientId - 1], intendedDate, creationDateAndTime, address);
+                facilities[facilityNumber] -> addStaffRecord(newRequest);
+            } else{
+                Intervention * newIntervention = new Intervention(reason, abilityToPay, payInFull, makeContribution, animals[animalId - 1], intendedDate, creationDateAndTime);
+                facilities[facilityNumber] -> addStaffRecord(newIntervention);
+            }
+        }
+        interventionReader.close();
+    }catch(std::exception& e){
+        system("cls");
+        std::cout << "There was a problem reading staff records from the file";
+        system("pause");
+    }
+}
+
+void readObjects(){
+    readClients();
+    readAnimals();
+    readInterventions();
 }
 
 int main()
 {
+    readObjects();
     int menuOption = 0;
     while((menuOption = menuOption = displayArrowMenu("Main Menu\n", menuOptions)) != 7)
     {

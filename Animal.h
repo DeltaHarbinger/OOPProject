@@ -1,3 +1,5 @@
+//Created by Philip newman and Brandon Chung
+
 #ifndef ANIMAL_H
 #define ANIMAL_H
 
@@ -108,6 +110,10 @@ public:
 		this -> owner = owner;
 	}
 
+	static void setNumberOfAnimals(int numberOfAnimals){
+		Animal::numberOfAnimals = numberOfAnimals;
+	}
+
 	bool euthanize(){
 		this -> ~Animal();
 	}
@@ -126,7 +132,6 @@ public:
 
 	void writeToFile(){
 		std::ofstream animalWriter;
-		std::ofstream ownerWriter;
 		try{
 			animalWriter.open("newAnimals.txt", std::ios::app);
 			animalWriter << id << '\t' << name << '\t' << type << '\t' << gender << '\t' << breed << '\t' << approxAge << '\t' << adoptionCandidate << '\t';// << (owner ? owner -> getEmail() : 0) << std::endl;
@@ -135,7 +140,7 @@ public:
 			} else {
 				animalWriter << (owner -> getId()) << '\n';
 			}
-			ownerWriter.close();
+			animalWriter.close();
 		} catch (std::exception& e){
 			system("cls");
 			std::cout << "Failure while storing animals" << std::endl;

@@ -1,3 +1,5 @@
+//Created by Philip newman and Brandon Chung
+
 #ifndef INTERVENTION_H
 #define INTERVENTION_H
 
@@ -62,7 +64,7 @@ public:
 		return intendedDate;
 	}
 
-	std::string getcreationDateAndTime(){
+	std::string getCreationDateAndTime(){
 		return creationDateAndTime;
 	}
 
@@ -104,7 +106,7 @@ public:
 		this -> creationDateAndTime = creationDateAndTime;
 	}
 
-	void display(){
+	virtual void display(){
 		std::cout << "Intervention Number:\t" << interventionNumber << std::endl << "Reason:\t" << reason << std::endl << "Able to pay:\t" << (abilityToPay ? "Yes" : "No")  << std::endl;
 		std::cout << "Paid in full:\t" << (payInFull ? "Yes" : "No") << std::endl << "Contribution made:\t" << (makeContribution ? "Yes" : "No") << std::endl;
 		client -> display();
@@ -121,17 +123,28 @@ public:
 		return numberOFInterventions;
 	}
 
-	void writeToFile(){
+	virtual bool writeToFile(int facilityNumber){
 		std::ofstream interventionWriter;
+		bool success = true;
 		try{
 			interventionWriter.open("newInterventions.txt", std::ios::app);
-			interventionWriter << interventionNumber << '\t' << reason << '\t' << abilityToPay << '\t' << payInFull << '\t' << makeContribution << '\t' << (animal -> getId()) << '\t' << (client -> getId()) << '\t' << intendedDate << '\t' << creationDateAndTime << '\n';
+			interventionWriter << facilityNumber << '\t' << interventionNumber << '\t' << reason << '\t' << abilityToPay << '\t' << payInFull << '\t' << makeContribution << '\t' << (animal -> getId()) << '\t' << (client -> getId()) << '\t' << intendedDate << '\t' << creationDateAndTime << '\n';
+			interventionWriter.close();
 		} catch(std::exception& e){
 			system("cls");
+			success = false;
 			std::cout << "Failure while storing intervention" << std::endl;
 			system("pause");
 		}
+		return success;
+	}
+
+	virtual bool getKeptForAdoption(){
 		
+	}
+
+	virtual void setKeptForAdoption(bool keptForAdoption){
+
 	}
 
 private:

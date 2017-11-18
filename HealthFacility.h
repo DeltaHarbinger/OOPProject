@@ -1,3 +1,5 @@
+//Created by Philip newman and Brandon Chung
+
 #ifndef HEALTHFACILITY_H
 #define HEALTHFACILITY_H
 
@@ -5,6 +7,7 @@
 #include <vector>
 #include "Intervention.h"
 #include "Veterinarian.h"
+#include "RemovalRequest.h"
 class HealthFacility
 {
 public:
@@ -44,6 +47,10 @@ public:
 	}
 
 	void addStaffRecord(Intervention * record){
+		staffRecords.push_back(record);
+	}
+
+	void addStaffRecord(RemovalRequest * record){
 		staffRecords.push_back(record);
 	}
 
